@@ -1,23 +1,30 @@
 import type { AppContainer } from './composition-root';
+import type { LLMProviderConfig } from '../../infrastructure/llm/provider-config';
+import { createLLMGateway } from '../../infrastructure/llm/gateway/provider-factory';
+import { initializeDatabase } from '../../infrastructure/persistence/sqlite/database';
+import { ConversationRepositoryImpl } from '../../infrastructure/persistence/repositories/conversation-repository-impl';
+
+const PLACEHOLDER_LLM_CONFIG: LLMProviderConfig = {
+  provider: 'deepseek',
+  baseUrl: 'https://api.deepseek.com/v1',
+  apiKey: 'PLACEHOLDER_API_KEY',
+  defaultModel: 'deepseek-chat',
+};
 
 /**
- * Factory function that wires all port interfaces to their stub implementations.
+ * Factory function that wires all port interfaces to concrete implementations.
  *
- * Stub implementations log a warning so developers know a real adapter is needed.
- * Replace each stub with an actual infrastructure adapter during integration.
+ * Infrastructure adapters are resolved here at bootstrap time. Stubs remain
+ * for ports that have not yet been integrated.
  */
-export function createAppContainer(): AppContainer {
+export async function createAppContainer(
+  llmConfig: LLMProviderConfig = PLACEHOLDER_LLM_CONFIG,
+): Promise<AppContainer> {
+  const database = await initializeDatabase(':memory:');
+  const conversationRepository = new ConversationRepositoryImpl(database);
+
   return {
-    llmGateway: {
-      async completeChat() {
-        console.warn('[Stub] LLMGateway.completeChat — no adapter registered');
-        throw new Error('LLMGateway adapter not implemented');
-      },
-      async classifyIntent() {
-        console.warn('[Stub] LLMGateway.classifyIntent — no adapter registered');
-        throw new Error('LLMGateway adapter not implemented');
-      },
-    },
+    llmGateway: createLLMGateway(llmConfig),
 
     toolExecutor: {
       async openUrl() {
@@ -38,22 +45,7 @@ export function createAppContainer(): AppContainer {
       },
     },
 
-    conversationRepository: {
-      async saveSession() {
-        console.warn('[Stub] ConversationRepository.saveSession — no adapter registered');
-      },
-      async findSessionById() {
-        console.warn('[Stub] ConversationRepository.findSessionById — no adapter registered');
-        return null;
-      },
-      async saveMessage() {
-        console.warn('[Stub] ConversationRepository.saveMessage — no adapter registered');
-      },
-      async findMessagesBySession() {
-        console.warn('[Stub] ConversationRepository.findMessagesBySession — no adapter registered');
-        return [];
-      },
-    },
+    conversationRepository,
 
     memoryRepository: {
       async save() {
