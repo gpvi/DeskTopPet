@@ -1,11 +1,22 @@
-import type { ReminderRepositoryImpl } from '../../infrastructure/persistence/repositories/reminder-repository-impl';
+import type { Reminder } from '../../domain/entities/reminder';
+import { createProactiveReminderCopy } from '../companion/companion-feedback';
+
+export interface ReminderScheduleRepository {
+  findPending(): Promise<Reminder[]>;
+  markCompleted(reminderId: string): Promise<void>;
+}
 
 const CHECK_INTERVAL_MS = 60_000;
 
 export class ReminderScheduler {
   private timerId: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private readonly reminderRepository: ReminderRepositoryImpl) {}
+  constructor(
+    private readonly reminderRepository: ReminderScheduleRepository,
+    private readonly notifyReminder: (message: string) => void = (message) => {
+      console.info(message);
+    },
+  ) {}
 
   start(): void {
     if (this.timerId !== null) return;
@@ -32,7 +43,8 @@ export class ReminderScheduler {
   }
 
   private async fireReminder(title: string, reminderId: string): Promise<void> {
-    console.info(`[Reminder] "${title}" triggered`);
+    const reminderCopy = createProactiveReminderCopy(title);
+    this.notifyReminder(`[Reminder] ${reminderCopy}`);
     await this.reminderRepository.markCompleted(reminderId);
   }
 }

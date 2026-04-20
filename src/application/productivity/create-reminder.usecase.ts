@@ -1,5 +1,8 @@
 import type { Reminder } from '../../domain/entities/reminder';
-import type { ReminderRepositoryImpl } from '../../infrastructure/persistence/repositories/reminder-repository-impl';
+
+export interface ReminderRepository {
+  save(reminder: Reminder): Promise<void>;
+}
 
 export interface CreateReminderRequest {
   readonly title: string;
@@ -8,7 +11,7 @@ export interface CreateReminderRequest {
 }
 
 export class CreateReminderUseCase {
-  constructor(private readonly reminderRepository: ReminderRepositoryImpl) {}
+  constructor(private readonly reminderRepository: ReminderRepository) {}
 
   async execute(request: CreateReminderRequest): Promise<Reminder> {
     const reminder = this.buildReminder(request);

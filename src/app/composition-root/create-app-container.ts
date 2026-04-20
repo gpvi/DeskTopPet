@@ -3,6 +3,11 @@ import type { LLMProviderConfig } from '../../infrastructure/llm/provider-config
 import { createLLMGateway } from '../../infrastructure/llm/gateway/provider-factory';
 import { initializeDatabase } from '../../infrastructure/persistence/sqlite/database';
 import { ConversationRepositoryImpl } from '../../infrastructure/persistence/repositories/conversation-repository-impl';
+import { MemoryRepositoryImpl } from '../../infrastructure/persistence/repositories/memory-repository-impl';
+import { UsageRepositoryImpl } from '../../infrastructure/persistence/repositories/usage-repository-impl';
+import { SettingsRepositoryImpl } from '../../infrastructure/persistence/repositories/settings-repository-impl';
+import { ReminderRepositoryImpl } from '../../infrastructure/persistence/repositories/reminder-repository-impl';
+import { TodoRepositoryImpl } from '../../infrastructure/persistence/repositories/todo-repository-impl';
 import { createToolExecutor } from '../../infrastructure/system/launcher/tool-executor-factory';
 
 const PLACEHOLDER_LLM_CONFIG: LLMProviderConfig = {
@@ -12,53 +17,31 @@ const PLACEHOLDER_LLM_CONFIG: LLMProviderConfig = {
   defaultModel: 'deepseek-chat',
 };
 
-/**
- * Factory function that wires all port interfaces to concrete implementations.
- *
- * Infrastructure adapters are resolved here at bootstrap time. Stubs remain
- * for ports that have not yet been integrated.
- */
+const DEFAULT_DATABASE_PATH = 'desktop-pet-app.db';
+
+let cachedContainer: AppContainer | null = null;
+
 export async function createAppContainer(
   llmConfig: LLMProviderConfig = PLACEHOLDER_LLM_CONFIG,
 ): Promise<AppContainer> {
-  const database = await initializeDatabase(':memory:');
-  const conversationRepository = new ConversationRepositoryImpl(database);
+  if (cachedContainer) return cachedContainer;
 
-  return {
+  const database = await initializeDatabase(DEFAULT_DATABASE_PATH);
+
+  cachedContainer = {
     llmGateway: createLLMGateway(llmConfig),
-
     toolExecutor: createToolExecutor(),
-
-    conversationRepository,
-
-    memoryRepository: {
-      async save() {
-        console.warn('[Stub] MemoryRepository.save — no adapter registered');
-      },
-      async findByUser() {
-        console.warn('[Stub] MemoryRepository.findByUser — no adapter registered');
-        return [];
-      },
-      async findRelevant() {
-        console.warn('[Stub] MemoryRepository.findRelevant — no adapter registered');
-        return [];
-      },
-      async delete() {
-        console.warn('[Stub] MemoryRepository.delete — no adapter registered');
-      },
-      async clearByUser() {
-        console.warn('[Stub] MemoryRepository.clearByUser — no adapter registered');
-      },
-    },
-
-    usageRepository: {
-      async save() {
-        console.warn('[Stub] UsageRepository.save — no adapter registered');
-      },
-      async queryDailyTrend() {
-        console.warn('[Stub] UsageRepository.queryDailyTrend — no adapter registered');
-        return [];
-      },
-    },
+    conversationRepository: new ConversationRepositoryImpl(database),
+    memoryRepository: new MemoryRepositoryImpl(database),
+    usageRepository: new UsageRepositoryImpl(database),
+    reminderRepository: new ReminderRepositoryImpl(database),
+    todoRepository: new TodoRepositoryImpl(database),
+    settingsRepository: new SettingsRepositoryImpl(database),
   };
+
+  return cachedContainer;
+}
+
+export function getAppContainer(): AppContainer | null {
+  return cachedContainer;
 }

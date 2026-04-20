@@ -1,8 +1,14 @@
 import type { TodoItem } from '../../domain/entities/todo-item';
-import type { TodoRepositoryImpl } from '../../infrastructure/persistence/repositories/todo-repository-impl';
+
+export interface TodoRepository {
+  save(todo: TodoItem): Promise<void>;
+  findByUser(userId: string): Promise<TodoItem[]>;
+  markCompleted(todoId: string): Promise<void>;
+  delete(todoId: string): Promise<void>;
+}
 
 export class ManageTodoUseCase {
-  constructor(private readonly todoRepository: TodoRepositoryImpl) {}
+  constructor(private readonly todoRepository: TodoRepository) {}
 
   async createTodo(request: {
     title: string;
