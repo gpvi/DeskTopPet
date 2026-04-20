@@ -9,7 +9,10 @@ import { MIGRATION_006_USAGE } from './migrations/006-usage';
 
 const IN_MEMORY_DB_PATH = ':memory:';
 const STORAGE_KEY_PREFIX = 'desktop-pet:sqlite:';
+const STORAGE_KEY_SECRET_SUFFIX = ':secret';
 const BYTE_CHUNK_SIZE = 0x8000;
+const AES_GCM_ALGORITHM = 'AES-GCM';
+const AES_GCM_IV_LENGTH = 12;
 
 const ALL_MIGRATIONS: string[] = [
   MIGRATION_001_CONVERSATIONS,
@@ -28,13 +31,13 @@ export async function initializeDatabase(
 ): Promise<SqlJsDatabase> {
   const sqlJs = await initSqlJs();
   const storage = createStorageAdapter(dbPath);
-  const snapshot = storage?.load();
+  const snapshot = storage ? await storage.load() : null;
   const database = snapshot ? new sqlJs.Database(snapshot) : new sqlJs.Database();
 
   runMigrations(database);
   if (storage) {
     attachAutoPersist(database, storage.save);
-    storage.save(database.export());
+    await storage.save(database.export());
   }
 
   if (dbPath !== IN_MEMORY_DB_PATH) {
@@ -52,7 +55,7 @@ function runMigrations(database: SqlJsDatabase): void {
 
 function createStorageAdapter(
   dbPath: string,
-): { load: () => Uint8Array | null; save: (data: Uint8Array) => void } | null {
+): { load: () => Promise<Uint8Array | null>; save: (data: Uint8Array) => Promise<void> } | null {
   if (dbPath === IN_MEMORY_DB_PATH) {
     return null;
   }
@@ -64,23 +67,36 @@ function createStorageAdapter(
   }
 
   const storageKey = `${STORAGE_KEY_PREFIX}${dbPath}`;
+  const secretKey = `${storageKey}${STORAGE_KEY_SECRET_SUFFIX}`;
   return {
-    load: () => {
+    load: async () => {
       const encoded = localStorageRef.getItem(storageKey);
       if (!encoded) {
         return null;
       }
       try {
-        return base64ToUint8Array(encoded);
+        const payload = base64ToUint8Array(encoded);
+        if (!hasCryptoSupport()) {
+          return payload;
+        }
+
+        const secret = getOrCreateStorageSecret(localStorageRef, secretKey);
+        return await decryptSnapshot(payload, secret);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         runtimeLogger.warn(`[Persistence] Snapshot decode failed for ${dbPath}: ${message}`);
         return null;
       }
     },
-    save: (data: Uint8Array) => {
+    save: async (data: Uint8Array) => {
       try {
-        localStorageRef.setItem(storageKey, uint8ArrayToBase64(data));
+        const payload = hasCryptoSupport()
+          ? await encryptSnapshot(
+            data,
+            getOrCreateStorageSecret(localStorageRef, secretKey),
+          )
+          : data;
+        localStorageRef.setItem(storageKey, uint8ArrayToBase64(payload));
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         runtimeLogger.warn(`[Persistence] Snapshot save failed for ${dbPath}: ${message}`);
@@ -91,7 +107,7 @@ function createStorageAdapter(
 
 function attachAutoPersist(
   database: SqlJsDatabase,
-  saveSnapshot: (data: Uint8Array) => void,
+  saveSnapshot: (data: Uint8Array) => Promise<void>,
 ): void {
   const originalRun = database.run.bind(database);
   const originalExec = database.exec.bind(database);
@@ -99,29 +115,34 @@ function attachAutoPersist(
 
   database.run = (sql: string, params?: unknown[]): SqlJsDatabase => {
     const result = originalRun(sql, params);
-    persistSnapshot(database, saveSnapshot);
+    void persistSnapshot(database, saveSnapshot);
     return result;
   };
 
   database.exec = (sql: string, params?: unknown[]): { columns: string[]; values: unknown[][] }[] => {
     const result = originalExec(sql, params);
     if (isPotentialWriteSql(sql)) {
-      persistSnapshot(database, saveSnapshot);
+      void persistSnapshot(database, saveSnapshot);
     }
     return result;
   };
 
   database.close = (): void => {
-    persistSnapshot(database, saveSnapshot);
+    void persistSnapshot(database, saveSnapshot);
     originalClose();
   };
 }
 
-function persistSnapshot(
+async function persistSnapshot(
   database: SqlJsDatabase,
-  saveSnapshot: (data: Uint8Array) => void,
-): void {
-  saveSnapshot(database.export());
+  saveSnapshot: (data: Uint8Array) => Promise<void>,
+): Promise<void> {
+  try {
+    await saveSnapshot(database.export());
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    runtimeLogger.warn(`[Persistence] Snapshot persist failed: ${message}`);
+  }
 }
 
 function isPotentialWriteSql(sql: string): boolean {
@@ -145,6 +166,81 @@ function getLocalStorage(): Storage | null {
     return null;
   }
   return globalThis.localStorage;
+}
+
+function hasCryptoSupport(): boolean {
+  return (
+    typeof globalThis !== 'undefined' &&
+    typeof globalThis.crypto !== 'undefined' &&
+    typeof globalThis.crypto.getRandomValues === 'function' &&
+    typeof globalThis.crypto.subtle !== 'undefined'
+  );
+}
+
+function getOrCreateStorageSecret(localStorageRef: Storage, key: string): Uint8Array {
+  const existing = localStorageRef.getItem(key);
+  if (existing) {
+    return base64ToUint8Array(existing);
+  }
+
+  const bytes = new Uint8Array(32);
+  globalThis.crypto.getRandomValues(bytes);
+  localStorageRef.setItem(key, uint8ArrayToBase64(bytes));
+  return bytes;
+}
+
+async function encryptSnapshot(data: Uint8Array, keyBytes: Uint8Array): Promise<Uint8Array> {
+  const key = await globalThis.crypto.subtle.importKey(
+    'raw',
+    toArrayBuffer(keyBytes),
+    { name: AES_GCM_ALGORITHM },
+    false,
+    ['encrypt'],
+  );
+  const iv = new Uint8Array(AES_GCM_IV_LENGTH);
+  globalThis.crypto.getRandomValues(iv);
+  const encrypted = await globalThis.crypto.subtle.encrypt(
+    { name: AES_GCM_ALGORITHM, iv: toArrayBuffer(iv) },
+    key,
+    toArrayBuffer(data),
+  );
+  return concatUint8Arrays(iv, new Uint8Array(encrypted));
+}
+
+async function decryptSnapshot(payload: Uint8Array, keyBytes: Uint8Array): Promise<Uint8Array> {
+  if (payload.length <= AES_GCM_IV_LENGTH) {
+    throw new Error('Encrypted snapshot payload too short');
+  }
+
+  const iv = payload.subarray(0, AES_GCM_IV_LENGTH);
+  const ciphertext = payload.subarray(AES_GCM_IV_LENGTH);
+  const key = await globalThis.crypto.subtle.importKey(
+    'raw',
+    toArrayBuffer(keyBytes),
+    { name: AES_GCM_ALGORITHM },
+    false,
+    ['decrypt'],
+  );
+  const decrypted = await globalThis.crypto.subtle.decrypt(
+    { name: AES_GCM_ALGORITHM, iv: toArrayBuffer(iv) },
+    key,
+    toArrayBuffer(ciphertext),
+  );
+  return new Uint8Array(decrypted);
+}
+
+function concatUint8Arrays(first: Uint8Array, second: Uint8Array): Uint8Array {
+  const output = new Uint8Array(first.length + second.length);
+  output.set(first, 0);
+  output.set(second, first.length);
+  return output;
+}
+
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  return bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
 }
 
 function uint8ArrayToBase64(bytes: Uint8Array): string {

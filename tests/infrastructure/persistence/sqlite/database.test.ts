@@ -32,6 +32,12 @@ function createMockStorage(initialValues: Record<string, string> = {}): MockStor
   return storage;
 }
 
+async function waitForPersistence(): Promise<void> {
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 20);
+  });
+}
+
 describe('initializeDatabase', () => {
   let originalLocalStorage: Storage | undefined;
 
@@ -64,6 +70,7 @@ describe('initializeDatabase', () => {
 
     const database = await initializeDatabase(':memory:');
     database.close();
+    await waitForPersistence();
 
     expect(storage.getItem).not.toHaveBeenCalled();
     expect(storage.setItem).not.toHaveBeenCalled();
@@ -84,16 +91,21 @@ describe('initializeDatabase', () => {
       "INSERT INTO memories (memory_id, user_id, category, content, source, confidence, created_at, is_deleted) VALUES ('memory-1', 'user-1', 'preference', '喜欢猫', 'chat', 0.9, '2026-04-20T08:30:00.000Z', 0)",
     );
     firstDatabase.close();
+    await waitForPersistence();
 
     expect(storage.getItem).toHaveBeenCalledWith(`desktop-pet:sqlite:${dbPath}`);
     expect(storage.setItem).toHaveBeenCalled();
 
-    const snapshotValue = storage.setItem.mock.calls.at(-1)?.[1];
+    const snapshotCall = storage.setItem.mock.calls
+      .find((call) => call[0] === `desktop-pet:sqlite:${dbPath}`);
+    const snapshotValue = snapshotCall?.[1];
     expect(snapshotValue).toBeTypeOf('string');
+    expect(snapshotValue).not.toContain('memory-1');
 
     const secondDatabase = await initializeDatabase(dbPath);
     const result = secondDatabase.exec("SELECT content FROM memories WHERE memory_id = 'memory-1'");
     secondDatabase.close();
+    await waitForPersistence();
 
     expect(storage.getItem).toHaveBeenCalledWith(`desktop-pet:sqlite:${dbPath}`);
     expect(result[0]?.values).toEqual([['喜欢猫']]);

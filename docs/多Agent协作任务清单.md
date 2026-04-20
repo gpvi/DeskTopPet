@@ -115,7 +115,7 @@
 | T026 | 面板挂载与状态统一 | P0 | review | Codex + Worker-Mendel | T003,T004,T008 | 已完成面板挂载与聊天状态源统一，待联调验收 |
 | T027 | SQLite 持久化落地 | P0 | review | Codex + Worker-Descartes | T007 | 已完成基于 dbPath+localStorage 的持久化策略，待重启验证与容量评估 |
 | T028 | 安全执行策略与高风险操作确认 | P0 | done | Codex | T010,T011,T015 | 已接入参数校验、应用/路径白名单与二次确认机制，待端到端验收 |
-| T029 | 本地数据持久化安全加固 | P0 | todo | Codex | T007,T017,T020,T027 | 评估并落地敏感数据加密或安全存储替代 localStorage 明文快照 |
+| T029 | 本地数据持久化安全加固 | P0 | review | Codex | T007,T017,T020,T027 | 已接入 SQLite 快照透明加密存储，待端到端重启与兼容性验收 |
 | T030 | Lint 基线治理与 CI 门禁 | P1 | done | Codex | T002 | 已收敛至 0 error/0 warning，待 CI 门禁策略联调后转 done |
 | T031 | 提醒调度健壮性与生命周期收口 | P1 | review | Codex | T012,T018 | 已补调度异常兜底与单测，待 GUI/生命周期联调验收 |
 | T032 | 待办多用户约束与越权防护 | P1 | review | Codex | T013 | 已接入 userId 约束+影响行校验与单测，待端到端回归验收 |
@@ -695,6 +695,7 @@
 - 今日更新（T033）：单测扩展后总计 `11 files / 27 tests passed`，覆盖 conversation/memory/todo/reminder/sqlite 关键路径。
 - 今日问题（T028-01，已解决）：打开应用/文件夹缺少执行安全边界；已在 `OpenToolUseCase` 增加 URL/应用名/路径参数校验与白名单策略，并在 `ConversationController` 增加高风险二次确认（确认/取消/过期）流程。
 - 今日更新（T033）：新增 `open-tool-use-case` 与 `conversation-controller(T028)` 安全行为测试，当前总计 `12 files / 33 tests passed`。
+- 今日问题（T029-01，已解决）：SQLite 快照以明文保存在 localStorage；已在 `database.ts` 增加基于 Web Crypto AES-GCM 的透明加密存储（含随机 IV 与本地密钥），并补充回归测试验证可恢复性。
 
 可视为已完成的前置基础工作：
 
