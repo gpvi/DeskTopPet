@@ -62,6 +62,7 @@ export class ConversationController {
   private static readonly MAX_RECALL_ITEMS = 3;
   private static readonly DEFAULT_REMINDER_MINUTES = 10;
   private static readonly MAX_TODO_PREVIEW_ITEMS = 10;
+  private static readonly HIGH_RISK_CONFIRM_EXPIRES_MS = 60_000;
 
   private readonly sendMessageUseCase: SendMessageUseCase;
   private readonly classifyIntentUseCase: ClassifyIntentUseCase;
@@ -74,6 +75,11 @@ export class ConversationController {
   private readonly reminderScheduler: ReminderScheduler;
   private readonly intentRouter: IntentRouter;
   private activeSessionId: string;
+  private pendingHighRiskAction: {
+    readonly type: 'open_application' | 'open_folder';
+    readonly value: string;
+    readonly createdAt: number;
+  } | null = null;
 
   constructor(
     private readonly appContainer: AppContainer,
@@ -123,6 +129,10 @@ export class ConversationController {
 
   private async processAndRespond(userText: string): Promise<void> {
     try {
+      if (await this.tryHandleHighRiskConfirmation(userText)) {
+        return;
+      }
+
       if (await this.tryHandleMemoryCommand(userText)) {
         return;
       }
@@ -319,7 +329,14 @@ export class ConversationController {
         this.pushAssistantMessage('请告诉我要打开的应用名称。');
         return;
       }
-      result = await this.openToolUseCase.openApplication(appName);
+
+      this.pendingHighRiskAction = {
+        type: 'open_application',
+        value: appName,
+        createdAt: Date.now(),
+      };
+      this.pushAssistantMessage(`检测到高风险操作：打开应用「${appName}」。请回复“确认”继续，或回复“取消”终止。`);
+      return;
     }
 
     if (decision.taskIntent === 'open_folder') {
@@ -328,10 +345,58 @@ export class ConversationController {
         this.pushAssistantMessage('请告诉我要打开的文件夹路径。');
         return;
       }
-      result = await this.openToolUseCase.openFolder(folderPath);
+
+      this.pendingHighRiskAction = {
+        type: 'open_folder',
+        value: folderPath,
+        createdAt: Date.now(),
+      };
+      this.pushAssistantMessage(`检测到高风险操作：打开文件夹「${folderPath}」。请回复“确认”继续，或回复“取消”终止。`);
+      return;
     }
 
     this.pushAssistantMessage(result);
+  }
+
+  private async tryHandleHighRiskConfirmation(userText: string): Promise<boolean> {
+    if (!this.pendingHighRiskAction) {
+      return false;
+    }
+
+    const trimmed = userText.trim();
+    const isConfirm = /^(确认|确定|yes|y|ok)$/iu.test(trimmed);
+    const isCancel = /^(取消|不用了|no|n)$/iu.test(trimmed);
+    const isExpired = Date.now() - this.pendingHighRiskAction.createdAt >
+      ConversationController.HIGH_RISK_CONFIRM_EXPIRES_MS;
+
+    if (isExpired) {
+      this.pendingHighRiskAction = null;
+      if (isConfirm || isCancel) {
+        this.pushAssistantMessage('上一次高风险操作确认已过期，请重新发起。');
+        return true;
+      }
+      return false;
+    }
+
+    if (isCancel) {
+      this.pendingHighRiskAction = null;
+      this.pushAssistantMessage('好的，已取消这次高风险操作。');
+      return true;
+    }
+
+    if (!isConfirm) {
+      this.pushAssistantMessage('当前有待确认的高风险操作。请回复“确认”执行，或回复“取消”终止。');
+      return true;
+    }
+
+    const action = this.pendingHighRiskAction;
+    this.pendingHighRiskAction = null;
+
+    const result = action.type === 'open_application'
+      ? await this.openToolUseCase.openApplication(action.value)
+      : await this.openToolUseCase.openFolder(action.value);
+    this.pushAssistantMessage(result);
+    return true;
   }
 
   private async respondWithFallbackChat(userText: string, classificationError: unknown): Promise<void> {

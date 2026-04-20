@@ -114,7 +114,7 @@
 | T025 | 集成联调与 MVP 验收 | P0 | in_progress | Codex | T008,T012,T013,T014,T015,T019 | T019 已落地，当前以 GUI 人工联调与验收记录回填为主 |
 | T026 | 面板挂载与状态统一 | P0 | review | Codex + Worker-Mendel | T003,T004,T008 | 已完成面板挂载与聊天状态源统一，待联调验收 |
 | T027 | SQLite 持久化落地 | P0 | review | Codex + Worker-Descartes | T007 | 已完成基于 dbPath+localStorage 的持久化策略，待重启验证与容量评估 |
-| T028 | 安全执行策略与高风险操作确认 | P0 | todo | Codex | T010,T011,T015 | 为应用/文件夹打开能力增加白名单、参数校验、二次确认 |
+| T028 | 安全执行策略与高风险操作确认 | P0 | review | Codex | T010,T011,T015 | 已接入参数校验、应用/路径白名单与二次确认机制，待端到端验收 |
 | T029 | 本地数据持久化安全加固 | P0 | todo | Codex | T007,T017,T020,T027 | 评估并落地敏感数据加密或安全存储替代 localStorage 明文快照 |
 | T030 | Lint 基线治理与 CI 门禁 | P1 | review | Codex | T002 | 已收敛至 0 error/0 warning，待 CI 门禁策略联调后转 done |
 | T031 | 提醒调度健壮性与生命周期收口 | P1 | review | Codex | T012,T018 | 已补调度异常兜底与单测，待 GUI/生命周期联调验收 |
@@ -692,6 +692,8 @@
 - 今日问题（T032-01，已解决）：待办完成/删除缺失 userId 约束，存在跨用户越权风险；已在 usecase/repository 全链路接入 userId，并按影响行数为 0 抛错拒绝。
 - 今日问题（T031-01，已解决）：提醒调度异步异常可能导致未处理错误与后续轮询不稳定；已在 `ReminderScheduler` 增加安全检查包装与错误日志兜底，并补齐异常回归测试。
 - 今日更新（T033）：单测扩展后总计 `11 files / 27 tests passed`，覆盖 conversation/memory/todo/reminder/sqlite 关键路径。
+- 今日问题（T028-01，已解决）：打开应用/文件夹缺少执行安全边界；已在 `OpenToolUseCase` 增加 URL/应用名/路径参数校验与白名单策略，并在 `ConversationController` 增加高风险二次确认（确认/取消/过期）流程。
+- 今日更新（T033）：新增 `open-tool-use-case` 与 `conversation-controller(T028)` 安全行为测试，当前总计 `12 files / 33 tests passed`。
 
 可视为已完成的前置基础工作：
 
