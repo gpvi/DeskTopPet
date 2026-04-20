@@ -158,12 +158,44 @@ function checkQuickActionExecutionWiring() {
   }
 }
 
+function checkConversationTaskRoutingWiring() {
+  const controllerPath = path.join(
+    rootDir,
+    "src",
+    "interfaces",
+    "controllers",
+    "conversation-controller.ts",
+  );
+  const source = readText(controllerPath);
+
+  if (source.includes("完整执行能力正在接入")) {
+    fail("ConversationController still contains task placeholder response text");
+    return;
+  }
+
+  const hasFallbackRouting = source.includes("inferTaskDecisionFromText");
+  const hasTaskExecution = source.includes("executeTaskAndRespond");
+
+  if (!hasTaskExecution) {
+    fail("ConversationController should execute task routing via executeTaskAndRespond");
+    return;
+  }
+
+  if (!hasFallbackRouting) {
+    warn("ConversationController has no local task-intent fallback inference");
+    return;
+  }
+
+  pass("ConversationController task routing includes execution and local fallback inference");
+}
+
 function main() {
   console.log("Running smoke checks for MVP integration readiness...");
   checkRequiredFiles();
   checkTaskDependencies();
   checkAcceptanceDocContent();
   checkQuickActionExecutionWiring();
+  checkConversationTaskRoutingWiring();
 
   console.log("");
   console.log(

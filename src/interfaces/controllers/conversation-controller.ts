@@ -131,11 +131,15 @@ export class ConversationController {
       });
 
       const decision = this.intentRouter.route(classification);
+      const fallbackDecision = decision.routingType === 'continue_chat'
+        ? this.inferTaskDecisionFromText(userText)
+        : null;
+      const finalDecision = fallbackDecision ?? decision;
 
-      if (decision.routingType === 'continue_chat') {
+      if (finalDecision.routingType === 'continue_chat') {
         await this.respondWithChat(userText);
       } else {
-        await this.executeTaskAndRespond(decision, userText);
+        await this.executeTaskAndRespond(finalDecision, userText);
       }
     } catch (error: unknown) {
       await this.respondWithFallbackChat(userText, error);
@@ -552,6 +556,63 @@ export class ConversationController {
     );
     if (rawValue === null) return true;
     return rawValue === 'true';
+  }
+
+  private inferTaskDecisionFromText(
+    userText: string,
+  ): (RoutingDecision & { routingType: 'execute_task' }) | null {
+    const text = userText.trim();
+    if (!text) return null;
+
+    if (/(提醒|闹钟|定时)/u.test(text)) {
+      return {
+        routingType: 'execute_task',
+        taskIntent: 'set_reminder',
+        taskName: '设置提醒',
+      };
+    }
+
+    if (/(待办|todo|任务清单|日程)/iu.test(text)) {
+      return {
+        routingType: 'execute_task',
+        taskIntent: 'manage_todo',
+        taskName: '管理待办',
+      };
+    }
+
+    if (/(剪贴板|总结|改写|润色|翻译)/u.test(text)) {
+      return {
+        routingType: 'execute_task',
+        taskIntent: 'read_clipboard',
+        taskName: '读取剪贴板',
+      };
+    }
+
+    if (/(打开|启动|运行)/u.test(text)) {
+      if (/(https?:\/\/|www\.|网址|网站|网页)/iu.test(text)) {
+        return {
+          routingType: 'execute_task',
+          taskIntent: 'open_url',
+          taskName: '打开网页',
+        };
+      }
+
+      if (/(文件夹|目录|路径)/u.test(text)) {
+        return {
+          routingType: 'execute_task',
+          taskIntent: 'open_folder',
+          taskName: '打开文件夹',
+        };
+      }
+
+      return {
+        routingType: 'execute_task',
+        taskIntent: 'open_application',
+        taskName: '打开应用',
+      };
+    }
+
+    return null;
   }
 
   private async tryHandleMemoryCommand(userText: string): Promise<boolean> {
