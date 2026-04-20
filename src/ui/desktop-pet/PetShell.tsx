@@ -1,13 +1,12 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import usePetStore from './petState';
 import { useChatStore } from '../chat-panel/chatStore';
 import {
   type DisplayMood,
   petLottieByMood,
 } from './animations/petLottieAnimations';
+import LottieLightPlayer from './LottieLightPlayer';
 import styles from './PetShell.module.css';
-
-const Lottie = lazy(() => import('lottie-react'));
 
 const HAPPY_STATE_DURATION_MS = 2200;
 const REMINDER_IDLE_THRESHOLD_MS = 60000;
@@ -120,15 +119,10 @@ export default function PetShell() {
     <div className={styles.petShell} data-tauri-drag-region onClick={handlePetClick}>
       <div className={styles.animationFrame} data-mood={displayMood}>
         <div className={`${styles.fallbackPulse} ${styles[`fallback${displayMood}`]}`} />
-        <Suspense fallback={null}>
-          <Lottie
-            animationData={petLottieByMood[displayMood]}
-            loop
-            autoplay
-            className={styles.lottieLayer}
-            rendererSettings={{ preserveAspectRatio: 'xMidYMid meet' }}
-          />
-        </Suspense>
+        <LottieLightPlayer
+          animationData={petLottieByMood[displayMood]}
+          className={styles.lottieLayer}
+        />
       </div>
       <span className={styles.moodIndicator}>{MOOD_LABEL_MAP[displayMood]}</span>
     </div>
