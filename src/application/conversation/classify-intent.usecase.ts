@@ -30,9 +30,13 @@ export class ClassifyIntentUseCase {
   constructor(private readonly llmGateway: LLMGateway) {}
 
   async execute(request: ClassifyIntentRequest): Promise<IntentClassificationResult> {
-    const completionRequest = this.buildClassificationRequest(request.message, request.model);
-    const response = await this.llmGateway.completeChat(completionRequest);
-    return this.parseClassificationResponse(response.content);
+    try {
+      const completionRequest = this.buildClassificationRequest(request.message, request.model);
+      const response = await this.llmGateway.completeChat(completionRequest);
+      return this.parseClassificationResponse(response.content);
+    } catch {
+      return CHAT_FALLBACK;
+    }
   }
 
   private buildClassificationRequest(message: string, model?: string): ChatCompletionRequest {
@@ -41,7 +45,7 @@ export class ClassifyIntentUseCase {
         { role: 'system', content: CLASSIFICATION_SYSTEM_PROMPT },
         { role: 'user', content: message },
       ],
-      model,
+      model: model ?? 'deepseek-chat',
       temperature: 0,
       maxTokens: 256,
     };

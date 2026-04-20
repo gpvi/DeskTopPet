@@ -43,20 +43,27 @@ export class TodoRepositoryImpl {
     }
   }
 
-  async markCompleted(todoId: string): Promise<void> {
+  async markCompleted(todoId: string, userId: string): Promise<void> {
     try {
       this.database.run(
-        `UPDATE todos SET status = 'completed', completed_at = ? WHERE todo_id = ?`,
-        [new Date().toISOString(), todoId],
+        `UPDATE todos
+         SET status = 'completed', completed_at = ?
+         WHERE todo_id = ? AND user_id = ?`,
+        [new Date().toISOString(), todoId, userId],
       );
+      assertAffectedRows(this.database, 'mark todo completed', todoId, userId);
     } catch (error) {
       throw wrapRepositoryError(error, 'mark todo completed');
     }
   }
 
-  async delete(todoId: string): Promise<void> {
+  async delete(todoId: string, userId: string): Promise<void> {
     try {
-      this.database.run('DELETE FROM todos WHERE todo_id = ?', [todoId]);
+      this.database.run(
+        'DELETE FROM todos WHERE todo_id = ? AND user_id = ?',
+        [todoId, userId],
+      );
+      assertAffectedRows(this.database, 'delete todo', todoId, userId);
     } catch (error) {
       throw wrapRepositoryError(error, 'delete todo');
     }
@@ -64,7 +71,22 @@ export class TodoRepositoryImpl {
 }
 
 function wrapRepositoryError(error: unknown, operation: string): RepositoryError {
-  if (error instanceof RepositoryError) return error;
+  if (error instanceof RepositoryError) {return error;}
   const message = error instanceof Error ? error.message : String(error);
   return new RepositoryError(`Failed to ${operation}: ${message}`, operation);
+}
+
+function assertAffectedRows(
+  database: SqlJsDatabase,
+  operation: string,
+  todoId: string,
+  userId: string,
+): void {
+  const result = database.exec('SELECT changes() AS affected');
+  const affected = Number(result[0]?.values?.[0]?.[0] ?? 0);
+  if (affected > 0) {return;}
+  throw new RepositoryError(
+    `Failed to ${operation}: todo not found or access denied (todoId=${todoId}, userId=${userId})`,
+    operation,
+  );
 }

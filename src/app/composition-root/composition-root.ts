@@ -26,8 +26,8 @@ export interface AppContainer {
   readonly todoRepository: {
     save(todo: TodoItem): Promise<void>;
     findByUser(userId: string): Promise<TodoItem[]>;
-    markCompleted(todoId: string): Promise<void>;
-    delete(todoId: string): Promise<void>;
+    markCompleted(todoId: string, userId: string): Promise<void>;
+    delete(todoId: string, userId: string): Promise<void>;
   };
   readonly settingsRepository: {
     get(key: string): Promise<string | null>;

@@ -251,7 +251,10 @@ export class ConversationController {
         this.pushAssistantMessage('要完成待办的话，请告诉我待办编号（todo_id）。');
         return;
       }
-      await this.manageTodoUseCase.completeTodo(candidateId);
+      await this.manageTodoUseCase.completeTodo(
+        candidateId,
+        ConversationController.DEFAULT_USER_ID,
+      );
       this.pushAssistantMessage(createCompletionFeedbackCopy('待办完成'));
       return;
     }
@@ -262,7 +265,10 @@ export class ConversationController {
         this.pushAssistantMessage('要删除待办的话，请告诉我待办编号（todo_id）。');
         return;
       }
-      await this.manageTodoUseCase.deleteTodo(candidateId);
+      await this.manageTodoUseCase.deleteTodo(
+        candidateId,
+        ConversationController.DEFAULT_USER_ID,
+      );
       this.pushAssistantMessage(createCompletionFeedbackCopy('待办删除'));
       return;
     }

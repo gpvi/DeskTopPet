@@ -3,8 +3,8 @@ import type { TodoItem } from '../../domain/entities/todo-item';
 export interface TodoRepository {
   save(todo: TodoItem): Promise<void>;
   findByUser(userId: string): Promise<TodoItem[]>;
-  markCompleted(todoId: string): Promise<void>;
-  delete(todoId: string): Promise<void>;
+  markCompleted(todoId: string, userId: string): Promise<void>;
+  delete(todoId: string, userId: string): Promise<void>;
 }
 
 export class ManageTodoUseCase {
@@ -25,12 +25,12 @@ export class ManageTodoUseCase {
     return this.todoRepository.findByUser(userId);
   }
 
-  async completeTodo(todoId: string): Promise<void> {
-    await this.todoRepository.markCompleted(todoId);
+  async completeTodo(todoId: string, userId: string): Promise<void> {
+    await this.todoRepository.markCompleted(todoId, userId);
   }
 
-  async deleteTodo(todoId: string): Promise<void> {
-    await this.todoRepository.delete(todoId);
+  async deleteTodo(todoId: string, userId: string): Promise<void> {
+    await this.todoRepository.delete(todoId, userId);
   }
 
   private buildTodo(request: {

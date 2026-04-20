@@ -21,8 +21,10 @@ export class ReminderScheduler {
 
   start(): void {
     if (this.timerId !== null) {return;}
-    this.timerId = setInterval(() => this.checkReminders(), CHECK_INTERVAL_MS);
-    this.checkReminders();
+    this.timerId = setInterval(() => {
+      void this.checkRemindersSafely();
+    }, CHECK_INTERVAL_MS);
+    void this.checkRemindersSafely();
   }
 
   stop(): void {
@@ -31,15 +33,20 @@ export class ReminderScheduler {
     this.timerId = null;
   }
 
-  private async checkReminders(): Promise<void> {
-    const pendingReminders = await this.reminderRepository.findPending();
-    const now = new Date();
+  private async checkRemindersSafely(): Promise<void> {
+    try {
+      const pendingReminders = await this.reminderRepository.findPending();
+      const now = new Date();
 
-    for (const reminder of pendingReminders) {
-      const triggerTime = reminder.scheduleRule.datetime;
-      if (triggerTime && triggerTime <= now) {
-        this.fireReminder(reminder.title, reminder.reminderId);
+      for (const reminder of pendingReminders) {
+        const triggerTime = reminder.scheduleRule.datetime;
+        if (triggerTime && triggerTime <= now) {
+          await this.fireReminder(reminder.title, reminder.reminderId);
+        }
       }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      runtimeLogger.error(`[ReminderScheduler] check failed: ${message}`);
     }
   }
 

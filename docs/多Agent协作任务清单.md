@@ -117,8 +117,8 @@
 | T028 | 安全执行策略与高风险操作确认 | P0 | todo | Codex | T010,T011,T015 | 为应用/文件夹打开能力增加白名单、参数校验、二次确认 |
 | T029 | 本地数据持久化安全加固 | P0 | todo | Codex | T007,T017,T020,T027 | 评估并落地敏感数据加密或安全存储替代 localStorage 明文快照 |
 | T030 | Lint 基线治理与 CI 门禁 | P1 | review | Codex | T002 | 已收敛至 0 error/0 warning，待 CI 门禁策略联调后转 done |
-| T031 | 提醒调度健壮性与生命周期收口 | P1 | todo | Codex | T012,T018 | 处理定时任务异步异常、重复触发与控制器销毁时 stop |
-| T032 | 待办多用户约束与越权防护 | P1 | todo | Codex | T013 | 完成/删除待办需携带 userId 约束并校验影响行数 |
+| T031 | 提醒调度健壮性与生命周期收口 | P1 | review | Codex | T012,T018 | 已补调度异常兜底与单测，待 GUI/生命周期联调验收 |
+| T032 | 待办多用户约束与越权防护 | P1 | review | Codex | T013 | 已接入 userId 约束+影响行校验与单测，待端到端回归验收 |
 | T033 | 单元测试体系扩展与行为级 smoke | P1 | in_progress | Codex + Worker-Ramanujan | T025 | 已接入 Vitest 与 7 个用例，下一步覆盖 controller/task 关键行为 |
 
 ## 4. 任务详细说明
@@ -686,6 +686,12 @@
 - 今日更新（T030）：`npm run lint` 已从 `45 errors` 收敛到 `0 errors`（当前仅 `9 warnings`，均为 `no-console`）
 - 今日更新（T033）：`Vitest` 单测已实跑通过（`3 files / 7 tests passed`），`test/build/smoke` 三项均通过
 - 今日更新（T030）：已引入统一 `runtimeLogger` 并替换运行时 `console` 输出，`npm run lint` 现为 `0 error / 0 warning`
+- 今日更新（T025）：已完成第三轮静态回归，`npm run lint`、`npm run test`、`npm run build`、`npm run smoke:check` 全通过；当前仅待 GUI 终验收口
+- 今日问题（T033-01，已解决）：`ClassifyIntentUseCase` 在 LLM 网关异常时会抛错中断分流；已补充异常回退单测并修复为返回 `chat` 兜底（`src/application/conversation/classify-intent.usecase.ts`）。
+- 今日问题（T033-02，已解决）：会话/记忆/SQLite 持久化关键路径测试覆盖不足；已新增 `5` 个测试文件，当前总计 `8 files / 17 tests passed`。
+- 今日问题（T032-01，已解决）：待办完成/删除缺失 userId 约束，存在跨用户越权风险；已在 usecase/repository 全链路接入 userId，并按影响行数为 0 抛错拒绝。
+- 今日问题（T031-01，已解决）：提醒调度异步异常可能导致未处理错误与后续轮询不稳定；已在 `ReminderScheduler` 增加安全检查包装与错误日志兜底，并补齐异常回归测试。
+- 今日更新（T033）：单测扩展后总计 `11 files / 27 tests passed`，覆盖 conversation/memory/todo/reminder/sqlite 关键路径。
 
 可视为已完成的前置基础工作：
 
