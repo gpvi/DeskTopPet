@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { useChatStore } from './chatStore';
-import type { ChatMessage } from './types';
 import styles from './QuickActions.module.css';
 
 const QUICK_ACTION_ITEMS = [
@@ -10,18 +9,14 @@ const QUICK_ACTION_ITEMS = [
   { label: '今天日程', presetText: '查看今天的日程安排' },
 ] as const;
 
-function createQuickMessage(text: string): ChatMessage {
-  return { role: 'user', content: text, timestamp: Date.now() };
-}
-
 export default function QuickActions() {
-  const addMessage = useChatStore((state) => state.addMessage);
+  const sendMessage = useChatStore((state) => state.sendMessage);
 
   const handleQuickAction = useCallback(
     (presetText: string) => {
-      addMessage(createQuickMessage(presetText));
+      sendMessage(presetText);
     },
-    [addMessage],
+    [sendMessage],
   );
 
   return (

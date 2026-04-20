@@ -176,11 +176,15 @@
 结论：进入 review（尚未完成 GUI 全量手工联调，暂不标记 done）。
 
 阻塞与风险：
-- `npm run smoke:check` 结果为 `pass=23, warn=1, fail=0`，唯一警告来自任务清单中 `T019` 状态仍为 `todo` 的元数据未同步。
+- `npm run smoke:check` 结果为 `pass=25, warn=0, fail=0`，静态检查已覆盖核心任务依赖与 QuickActions 执行链路。
 - 本轮是静态联调 + 构建验证，尚未覆盖通知权限、工具调用系统侧弹窗、窗口交互等 GUI 全链路行为。
 - `npm run build` 存在非阻塞告警（chunk size 与 `lottie-web` 的 eval 告警），当前不影响功能验收结论。
 
+补充记录：
+- QuickActions 已接入 `sendMessage` 主链路，动作触发后进入与聊天输入一致的消息发送路径。
+- 证据：`src/ui/chat-panel/QuickActions.tsx`（动作触发 `sendMessage`）、`src/interfaces/controllers/conversation-controller.ts`（统一消息入口）。
+- Smoke 校验：`npm run smoke:check` 通过（`pass=25, warn=0, fail=0`），未见 QuickActions→`sendMessage` 接线回归。
+
 下一步：
 - 执行一次 GUI 全量手工联调（聊天、提醒、待办、剪贴板、工具调用、动效切换），回填实际 pass/fail 证据。
-- 同步任务清单中的 `T019` 状态后，复跑 `npm run smoke:check`，消除唯一 warn。
 - GUI 联调通过后，将 `T019` 从 `review` 收口为 `done`，并推进 `T025` 最终验收关闭。

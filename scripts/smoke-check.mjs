@@ -1,0 +1,181 @@
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+
+const rootDir = process.cwd();
+const docsTaskPath = path.join(rootDir, "docs", "多Agent协作任务清单.md");
+const acceptanceDocPath = path.join(rootDir, "docs", "验收清单-MVP.md");
+
+const requiredFiles = [
+  { path: "src/interfaces/controllers/conversation-controller.ts", task: "T008" },
+  { path: "src/application/conversation/send-message.usecase.ts", task: "T008" },
+  { path: "src/application/productivity/create-reminder.usecase.ts", task: "T012" },
+  { path: "src/application/productivity/reminder-scheduler.ts", task: "T012" },
+  { path: "src/application/productivity/manage-todo.usecase.ts", task: "T013" },
+  { path: "src/application/task/clipboard-use-case.ts", task: "T014" },
+  { path: "src/application/task/open-tool-use-case.ts", task: "T015" },
+  { path: "src/ui/desktop-pet/PetShell.tsx", task: "T019" },
+  { path: "src/ui/chat-panel/QuickActions.tsx", task: "T025" },
+  { path: "docs/多Agent协作任务清单.md", task: "T025" },
+  { path: "docs/验收清单-MVP.md", task: "T025" },
+];
+
+const dependencyTaskIds = ["T008", "T012", "T013", "T014", "T015", "T019"];
+const allowedStatuses = new Set(["todo", "in_progress", "blocked", "review", "done"]);
+
+const state = {
+  pass: 0,
+  warn: 0,
+  fail: 0,
+};
+
+function print(level, message) {
+  console.log(`${level} ${message}`);
+}
+
+function pass(message) {
+  state.pass += 1;
+  print("[PASS]", message);
+}
+
+function warn(message) {
+  state.warn += 1;
+  print("[WARN]", message);
+}
+
+function fail(message) {
+  state.fail += 1;
+  print("[FAIL]", message);
+}
+
+function readText(filePath) {
+  return fs.readFileSync(filePath, "utf8");
+}
+
+function checkRequiredFiles() {
+  for (const item of requiredFiles) {
+    const absPath = path.join(rootDir, item.path);
+    if (fs.existsSync(absPath)) {
+      pass(`${item.task} required file exists: ${item.path}`);
+    } else {
+      fail(`${item.task} required file missing: ${item.path}`);
+    }
+  }
+}
+
+function parseTaskStatuses(markdown) {
+  const lines = markdown.split(/\r?\n/);
+  const taskStatusMap = new Map();
+
+  for (const line of lines) {
+    if (!line.startsWith("| T")) {
+      continue;
+    }
+
+    const columns = line.split("|").map((part) => part.trim());
+    if (columns.length < 5) {
+      continue;
+    }
+
+    const taskId = columns[1];
+    const status = columns[4];
+
+    if (!taskId || !status) {
+      continue;
+    }
+
+    taskStatusMap.set(taskId, status);
+  }
+
+  return taskStatusMap;
+}
+
+function checkTaskDependencies() {
+  const markdown = readText(docsTaskPath);
+  const taskStatuses = parseTaskStatuses(markdown);
+
+  for (const taskId of dependencyTaskIds) {
+    if (!taskStatuses.has(taskId)) {
+      fail(`T025 dependency missing from task list: ${taskId}`);
+      continue;
+    }
+
+    const status = taskStatuses.get(taskId);
+    if (!allowedStatuses.has(status)) {
+      fail(`Task ${taskId} has invalid status value: ${status}`);
+      continue;
+    }
+
+    pass(`Task ${taskId} status is valid: ${status}`);
+  }
+
+  const t019Status = taskStatuses.get("T019");
+  if (t019Status && !["review", "done"].includes(t019Status)) {
+    warn(`T019 status is ${t019Status}; full MVP acceptance is not closed yet`);
+  }
+
+  const t025Status = taskStatuses.get("T025");
+  if (!t025Status) {
+    fail("T025 is missing from task overview table");
+  } else if (!allowedStatuses.has(t025Status)) {
+    fail(`T025 has invalid status value: ${t025Status}`);
+  } else {
+    pass(`T025 status is valid: ${t025Status}`);
+  }
+}
+
+function checkAcceptanceDocContent() {
+  const markdown = readText(acceptanceDocPath);
+  const sections = ["T008", "T012", "T013", "T014", "T015", "T019"];
+
+  for (const section of sections) {
+    if (markdown.includes(section)) {
+      pass(`Acceptance checklist includes section: ${section}`);
+    } else {
+      fail(`Acceptance checklist missing section: ${section}`);
+    }
+  }
+}
+
+function checkQuickActionExecutionWiring() {
+  const quickActionsPath = path.join(rootDir, "src", "ui", "chat-panel", "QuickActions.tsx");
+  const source = readText(quickActionsPath);
+
+  if (!source.includes("state.sendMessage")) {
+    fail("QuickActions should read sendMessage from chat store");
+    return;
+  }
+
+  if (!source.includes("sendMessage(presetText)")) {
+    fail("QuickActions should invoke sendMessage(presetText) on action click");
+    return;
+  }
+
+  if (source.includes("addMessage(")) {
+    warn("QuickActions still references addMessage; verify no bypass of controller flow");
+  } else {
+    pass("QuickActions is wired to controller flow via sendMessage");
+  }
+}
+
+function main() {
+  console.log("Running smoke checks for MVP integration readiness...");
+  checkRequiredFiles();
+  checkTaskDependencies();
+  checkAcceptanceDocContent();
+  checkQuickActionExecutionWiring();
+
+  console.log("");
+  console.log(
+    `Summary: pass=${state.pass}, warn=${state.warn}, fail=${state.fail}`,
+  );
+
+  if (state.fail > 0) {
+    process.exitCode = 1;
+    return;
+  }
+
+  process.exitCode = 0;
+}
+
+main();
