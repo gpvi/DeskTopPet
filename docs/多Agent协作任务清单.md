@@ -119,10 +119,10 @@
 | T030 | Lint 基线治理与 CI 门禁 | P1 | done | Codex | T002 | 已收敛至 0 error/0 warning，待 CI 门禁策略联调后转 done |
 | T031 | 提醒调度健壮性与生命周期收口 | P1 | review | Codex | T012,T018 | 已补调度异常兜底与单测，待 GUI/生命周期联调验收 |
 | T032 | 待办多用户约束与越权防护 | P1 | review | Codex | T013 | 已接入 userId 约束+影响行校验与单测，待端到端回归验收 |
-| T033 | 单元测试体系扩展与行为级 smoke | P1 | in_progress | Codex + Worker-Ramanujan | T025 | 已接入 Vitest 与 12 个测试文件，当前总计 33 tests passed，下一步覆盖 controller/task 关键行为 |
+| T033 | 单元测试体系扩展与行为级 smoke | P1 | in_progress | Codex + Worker-Ramanujan | T025 | 已接入 Vitest 与 14 个测试文件，当前总计 42 tests passed，下一步覆盖 GUI 关键行为 |
 | T034 | GUI 全链路终验与证据归档 | P0 | todo | Codex | T019,T025 | 执行聊天/提醒/待办/剪贴板/工具/动效全链路人工联调并沉淀截图与问题单 |
 | T035 | Lottie eval 告警治理 | P1 | done | Codex | T019 | 已切换到无 eval 的 lottie_light 播放链路，build 安全告警清零 |
-| T036 | 本地密钥与快照安全升级 | P0 | todo | Codex | T029 | 将本地快照加密密钥迁移到系统安全存储（避免与密文同域同存）并补迁移策略 |
+| T036 | 本地密钥与快照安全升级 | P0 | in_progress | Codex | T029 | 将本地快照加密密钥迁移到系统安全存储（避免与密文同域同存）并补迁移策略 |
 | T037 | 系统能力端到端验收收口 | P1 | todo | Codex | T022,T023 | 对全局快捷键、自启动、通知权限进行跨平台手工验收并回填行为证据 |
 
 ## 4. 任务详细说明
@@ -686,6 +686,7 @@
 - 今日更新：已在 `vite.config.ts` 增加手动分包（`react/openai/sqljs/lottie`）；`PetShell` 改为 `lazy + Suspense` 动态加载 `lottie-react`；构建中的 `chunk size` 告警已消除；当前剩余非阻塞告警为 `lottie-web eval`
 - 今日更新：开始治理 `lottie eval` 告警，目标是 `build` 零安全告警
 - 今日更新（T035）：`PetShell` 已从 `lottie-react` 切换到 `lottie-web/build/player/lottie_light` 播放器，`npm run build` 不再出现 `eval` 安全告警。
+- 今日更新（T033）：新增 `conversation-controller(T028)` 扩展测试与 runtime 层（shortcut/system-preferences）测试，当前总计 `14 files / 42 tests passed`。
 - 今日更新：已引入 `Vitest` 单测基础设施，新增 3 个测试文件、7 个用例，`npm run test:run` 全通过（`7 passed`）
 - 阶段分析（多 Agent）：`build/smoke/test` 通过，`lint` 失败（`54 problems: 45 errors, 9 warnings`）
 - 阶段问题归档：已新增 `T028~T033`，覆盖执行安全、数据安全、提醒调度健壮性、多用户约束、Lint 基线与测试体系扩展
@@ -702,6 +703,7 @@
 - 今日问题（T028-01，已解决）：打开应用/文件夹缺少执行安全边界；已在 `OpenToolUseCase` 增加 URL/应用名/路径参数校验与白名单策略，并在 `ConversationController` 增加高风险二次确认（确认/取消/过期）流程。
 - 今日更新（T033）：新增 `open-tool-use-case` 与 `conversation-controller(T028)` 安全行为测试，当前总计 `12 files / 33 tests passed`。
 - 今日问题（T029-01，已解决）：SQLite 快照以明文保存在 localStorage；已在 `database.ts` 增加基于 Web Crypto AES-GCM 的透明加密存储（含随机 IV 与本地密钥），并补充回归测试验证可恢复性。
+- 今日更新（T036）：开始接入安全存储能力评估（优先 Tauri 原生安全存储插件）。
 - 新增问题归档（待处理）：仍存在 GUI 终验证据缺口、`lottie-web eval` 告警未治理、本地密钥与密文同域存储风险、系统能力端到端验收缺口，已新增 `T034~T037` 跟踪收口。
 
 可视为已完成的前置基础工作：
