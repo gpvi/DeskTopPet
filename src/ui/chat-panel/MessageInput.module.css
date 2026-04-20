@@ -1,0 +1,63 @@
+.container {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid #f0e6d0;
+  background-color: #FFF8E7;
+  border-radius: 0 0 12px 12px;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.textarea {
+  flex: 1;
+  resize: none;
+  border: 1px solid #f0e6d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  max-height: 100px;
+  outline: none;
+  background-color: #ffffff;
+  color: #5a4a2a;
+  transition: border-color 0.2s ease;
+}
+
+.textarea:focus {
+  border-color: #F5C542;
+}
+
+.textarea::placeholder {
+  color: #c4b89a;
+}
+
+.sendButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #F5C542;
+  color: #5a4a2a;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: #e6b530;
+  transform: translateY(-1px);
+}
+
+.sendButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.sendButton:disabled {
+  background-color: #f0e6d0;
+  color: #c4b89a;
+  cursor: not-allowed;
+}

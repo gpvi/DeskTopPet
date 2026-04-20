@@ -1,0 +1,62 @@
+.panel {
+  position: absolute;
+  bottom: 120px;
+  right: 0;
+  width: 320px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background-color: #FFF8E7;
+  box-shadow: 0 8px 32px rgba(139, 115, 85, 0.2), 0 2px 8px rgba(139, 115, 85, 0.1);
+  border: 1px solid #f0e6d0;
+  overflow: hidden;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: #F5C542;
+  color: #5a4a2a;
+  user-select: none;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #5a4a2a;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 0;
+}
+
+.closeButton:hover {
+  background-color: rgba(90, 74, 42, 0.15);
+}
