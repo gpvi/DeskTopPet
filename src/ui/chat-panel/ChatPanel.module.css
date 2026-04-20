@@ -36,6 +36,12 @@
   user-select: none;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .title {
   font-size: 15px;
   font-weight: 600;
@@ -57,6 +63,25 @@
   padding: 0;
 }
 
+.settingsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #5a4a2a;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 0;
+}
+
 .closeButton:hover {
+  background-color: rgba(90, 74, 42, 0.15);
+}
+
+.settingsButton:hover {
   background-color: rgba(90, 74, 42, 0.15);
 }

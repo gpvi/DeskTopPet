@@ -119,7 +119,7 @@ export class OpenAICompatibleProvider implements LLMGateway {
     return {
       intent: this.validateIntent(parsed.intent),
       confidence: this.validateConfidence(parsed.confidence),
-      parameters: parsed.parameters,
+      parameters: this.extractParameters(parsed.parameters),
     };
   }
 
@@ -153,6 +153,15 @@ export class OpenAICompatibleProvider implements LLMGateway {
       return confidence;
     }
     return 0.5;
+  }
+
+  private extractParameters(
+    rawParameters: unknown,
+  ): Record<string, unknown> | undefined {
+    if (typeof rawParameters !== 'object' || rawParameters === null) {
+      return undefined;
+    }
+    return rawParameters as Record<string, unknown>;
   }
 
   private wrapAsGatewayError(error: unknown): LLMGatewayError {

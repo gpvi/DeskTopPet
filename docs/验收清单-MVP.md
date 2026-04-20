@@ -192,3 +192,48 @@
 下一步：
 - 执行一次 GUI 全量手工联调（聊天、提醒、待办、剪贴板、工具调用、动效切换），回填实际 pass/fail 证据。
 - GUI 联调通过后，将 `T019` 从 `review` 收口为 `done`，并推进 `T025` 最终验收关闭。
+
+## 8. 第三轮静态回归记录（2026-04-20）
+
+验收日期：2026-04-20  
+执行人：Codex（T025 持续收口）  
+环境：静态联调回归（`npm run lint` + `npm run test` + `npm run build` + `npm run smoke:check`）  
+关联提交：工作区当前变更（含 T016/T017/T020/T021/T027/T030/T033 持续收口）
+
+[T008] 结果：pass  
+现象：消息主链路回归通过，单测与构建未见回归。  
+证据：`src/interfaces/controllers/conversation-controller.ts`、`src/application/conversation/send-message.usecase.ts`。  
+结论：维持通过。
+
+[T012] 结果：pass  
+现象：提醒创建与调度能力在静态检查和构建中保持可达。  
+证据：`src/application/productivity/create-reminder.usecase.ts`、`src/application/productivity/reminder-scheduler.ts`。  
+结论：维持通过。
+
+[T013] 结果：pass  
+现象：待办能力链路保持稳定，未出现 lint/test/build 回归。  
+证据：`src/application/productivity/manage-todo.usecase.ts`。  
+结论：维持通过。
+
+[T014] 结果：pass  
+现象：剪贴板能力链路保持可达，静态联调通过。  
+证据：`src/application/task/clipboard-use-case.ts`。  
+结论：维持通过。
+
+[T015] 结果：pass  
+现象：网页/应用/文件夹打开能力链路保持可达，`smoke` 校验通过。  
+证据：`src/application/task/open-tool-use-case.ts`、`scripts/smoke-check.mjs`。  
+结论：维持通过。
+
+[T019] 结果：review  
+现象：动效能力无构建回归；当前构建仅剩 `lottie-web` 的 eval 非阻塞告警。  
+证据：`src/ui/desktop-pet/PetShell.tsx`、`src/ui/desktop-pet/animations/petLottieAnimations.ts`。  
+结论：继续保持 review，待 GUI 终验后再收口为 done。
+
+阻塞与风险：
+- 本轮为静态回归，不替代 GUI 人工点击流与系统权限弹窗验证。
+- 任务能力可达性与工程质量门禁已通过：`lint=pass`、`test=7 passed`、`build=pass`、`smoke=pass(26/0/0)`。
+
+下一步：
+- 完成 GUI 终验并回填截图/行为证据。
+- 终验通过后同步将 `T025` 从 `in_progress` 更新为 `done`。

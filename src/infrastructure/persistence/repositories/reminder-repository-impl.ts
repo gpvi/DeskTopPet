@@ -59,7 +59,7 @@ export class ReminderRepositoryImpl {
 }
 
 function wrapRepositoryError(error: unknown, operation: string): RepositoryError {
-  if (error instanceof RepositoryError) return error;
+  if (error instanceof RepositoryError) {return error;}
   const message = error instanceof Error ? error.message : String(error);
   return new RepositoryError(`Failed to ${operation}: ${message}`, operation);
 }

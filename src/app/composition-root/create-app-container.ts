@@ -24,7 +24,7 @@ let cachedContainer: AppContainer | null = null;
 export async function createAppContainer(
   llmConfig: LLMProviderConfig = PLACEHOLDER_LLM_CONFIG,
 ): Promise<AppContainer> {
-  if (cachedContainer) return cachedContainer;
+  if (cachedContainer) {return cachedContainer;}
 
   const database = await initializeDatabase(DEFAULT_DATABASE_PATH);
 

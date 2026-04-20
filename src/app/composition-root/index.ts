@@ -1,2 +1,2 @@
 export type { AppContainer } from './composition-root';
-export { createAppContainer } from './create-app-container';
+export { createAppContainer, getAppContainer } from './create-app-container';

@@ -12,6 +12,8 @@ export interface SendMessageRequest {
 
 export interface SendMessageResponse {
   readonly assistantMessage: ConversationMessage;
+  readonly provider: string;
+  readonly model: string;
   readonly inputTokens: number;
   readonly outputTokens: number;
 }
@@ -40,6 +42,8 @@ export class SendMessageUseCase {
 
     return {
       assistantMessage,
+      provider: completionResponse.provider,
+      model: completionResponse.model,
       inputTokens: completionResponse.inputTokens,
       outputTokens: completionResponse.outputTokens,
     };

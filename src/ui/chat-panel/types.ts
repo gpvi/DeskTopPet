@@ -9,6 +9,7 @@ export interface ChatState {
   isOpen: boolean;
   isTyping: boolean;
   addMessage: (message: ChatMessage) => void;
+  openPanel: () => void;
   togglePanel: () => void;
   setTyping: (typing: boolean) => void;
 }

@@ -10,7 +10,7 @@ export default function MessageInput() {
   const isInputEmpty = inputValue.trim().length === 0;
 
   const submitMessage = useCallback(() => {
-    if (isInputEmpty) return;
+    if (isInputEmpty) {return;}
     sendMessage(inputValue.trim());
     setInputValue('');
     if (textareaRef.current) {

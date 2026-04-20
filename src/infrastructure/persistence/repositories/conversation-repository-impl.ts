@@ -77,7 +77,7 @@ export class ConversationRepositoryImpl implements ConversationRepository {
     const row = statement.getAsObject() as unknown as SessionRow;
     statement.free();
 
-    const messages = this.selectMessagesBySession(sessionId);
+    const messages = this.selectMessagesBySession(sessionId).map(mapRowToMessage);
     return mapRowToSession(row, messages);
   }
 

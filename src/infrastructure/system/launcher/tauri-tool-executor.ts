@@ -10,7 +10,10 @@ import { ToolExecutionError } from '../../../shared/errors/tool-execution-error'
 export class TauriToolExecutor implements ToolExecutor {
   async openUrl(url: string): Promise<ExecutionResult> {
     try {
-      const { open } = await import('@tauri-apps/plugin-shell');
+      const { open } = await import(
+        /* @vite-ignore */
+        '@tauri-apps/plugin-shell'
+      );
       await open(url);
       return { success: true, data: { url } };
     } catch (error: unknown) {
@@ -21,7 +24,10 @@ export class TauriToolExecutor implements ToolExecutor {
 
   async openApplication(applicationName: string): Promise<ExecutionResult> {
     try {
-      const { Command } = await import('@tauri-apps/plugin-shell');
+      const { Command } = await import(
+        /* @vite-ignore */
+        '@tauri-apps/plugin-shell'
+      );
       const command = Command.create(applicationName);
       await command.execute();
       return { success: true, data: { applicationName } };
@@ -33,7 +39,10 @@ export class TauriToolExecutor implements ToolExecutor {
 
   async openFolder(folderPath: string): Promise<ExecutionResult> {
     try {
-      const { open } = await import('@tauri-apps/plugin-shell');
+      const { open } = await import(
+        /* @vite-ignore */
+        '@tauri-apps/plugin-shell'
+      );
       await open(folderPath);
       return { success: true, data: { folderPath } };
     } catch (error: unknown) {
@@ -45,6 +54,7 @@ export class TauriToolExecutor implements ToolExecutor {
   async readClipboard(): Promise<ExecutionResult> {
     try {
       const { readText } = await import(
+        /* @vite-ignore */
         '@tauri-apps/plugin-clipboard-manager'
       );
       const text = await readText();

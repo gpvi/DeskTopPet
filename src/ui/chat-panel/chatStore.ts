@@ -3,6 +3,7 @@ import type { ChatMessage, ChatState } from './types';
 import type { ConversationController } from '../../interfaces/controllers/conversation-controller';
 
 export interface ChatStateWithController extends ChatState {
+  conversationController: ConversationController | null;
   sendMessage: (text: string) => void;
   setConversationController: (controller: ConversationController) => void;
 }
@@ -15,6 +16,9 @@ export const useChatStore = create<ChatStateWithController>((set, get) => ({
 
   addMessage: (message: ChatMessage) =>
     set((state) => ({ messages: [...state.messages, message] })),
+
+  openPanel: () =>
+    set({ isOpen: true }),
 
   togglePanel: () =>
     set((state) => ({ isOpen: !state.isOpen })),
