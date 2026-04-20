@@ -1,7 +1,13 @@
 import initSqlJs, { type Database as SqlJsDatabase } from 'sql.js';
 import { MIGRATION_001_CONVERSATIONS } from './migrations/001-conversations';
+import { MIGRATION_002_REMINDERS } from './migrations/002-reminders';
+import { MIGRATION_003_TODOS } from './migrations/003-todos';
 
-const ALL_MIGRATIONS: string[] = [MIGRATION_001_CONVERSATIONS];
+const ALL_MIGRATIONS: string[] = [
+  MIGRATION_001_CONVERSATIONS,
+  MIGRATION_002_REMINDERS,
+  MIGRATION_003_TODOS,
+];
 
 /**
  * Initialize an SQLite database via sql.js (WASM) and run all pending migrations.
