@@ -95,8 +95,8 @@
 | T006 | LLM 网关接口与 Provider 骨架 | P0 | done | Agent-A | T005 | 定义统一模型网关和 Provider 抽象 |
 | T007 | 会话与消息存储 | P0 | done | Agent-A | T005 | SQLite 表结构与 Repository 初版 |
 | T008 | 用户消息处理主链路 | P0 | done | Agent-A | T004,T005,T006,T007 | 打通聊天输入到回复输出 |
-| T009 | 角色提示词接入 | P0 | todo | 待分配 | T006,T008 | 接入系统提示词与运行时上下文 |
-| T010 | 意图识别与任务分流 | P0 | todo | 待分配 | T006,T008 | 区分闲聊、问答、任务请求 |
+| T009 | 角色提示词接入 | P0 | done | Agent-A | T006,T008 | 接入系统提示词与运行时上下文 |
+| T010 | 意图识别与任务分流 | P0 | done | Agent-A | T006,T008 | 区分闲聊、问答、任务请求 |
 | T011 | 工具执行接口层 | P0 | done | Agent-A | T005 | 封装网页、应用、文件夹、剪贴板等工具接口 |
 | T012 | 提醒系统基础能力 | P0 | todo | 待分配 | T005,T007,T011 | 提醒数据、调度、通知闭环 |
 | T013 | 待办系统基础能力 | P0 | todo | 待分配 | T005,T007 | 待办增删改查与展示 |
@@ -246,7 +246,7 @@
 ### T009 角色提示词接入
 
 - `priority`：P0
-- `status`：todo
+- `status`：done
 - `owner`：待分配
 - `support`：待分配
 - `depends_on`：T006,T008
@@ -261,7 +261,7 @@
 ### T010 意图识别与任务分流
 
 - `priority`：P0
-- `status`：todo
+- `status`：done
 - `owner`：待分配
 - `support`：待分配
 - `depends_on`：T006,T008

@@ -2,6 +2,7 @@ import type { ConversationMessage } from '../../domain/entities/conversation-mes
 import type { LLMGateway } from '../../domain/ports/llm-gateway.port';
 import type { ConversationRepository } from '../../domain/ports/conversation-repository.port';
 import type { ChatCompletionRequest } from '../../interfaces/dto';
+import type { PersonaPromptAssembler } from './persona-prompt-assembler';
 
 export interface SendMessageRequest {
   readonly userText: string;
@@ -19,6 +20,7 @@ export class SendMessageUseCase {
   constructor(
     private readonly llmGateway: LLMGateway,
     private readonly conversationRepository: ConversationRepository,
+    private readonly personaPromptAssembler: PersonaPromptAssembler,
   ) {}
 
   async execute(request: SendMessageRequest): Promise<SendMessageResponse> {
@@ -66,12 +68,31 @@ export class SendMessageUseCase {
     history: ConversationMessage[],
     model: string,
   ): ChatCompletionRequest {
+    const systemMessage = this.buildSystemMessage();
+    const conversationMessages = history.map((message) => ({
+      role: message.role,
+      content: message.content,
+    }));
+
     return {
-      messages: history.map((message) => ({
-        role: message.role,
-        content: message.content,
-      })),
+      messages: [systemMessage, ...conversationMessages],
       model,
+    };
+  }
+
+  private buildSystemMessage(): { readonly role: 'system'; readonly content: string } {
+    const runtimeContext = this.createRuntimeContext();
+    const systemContent = this.personaPromptAssembler.assembleSystemPrompt(runtimeContext);
+    return { role: 'system', content: systemContent };
+  }
+
+  private createRuntimeContext() {
+    const now = new Date();
+    return {
+      currentTime: now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      currentDate: now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }),
+      userName: '',
+      petState: 'idle',
     };
   }
 
