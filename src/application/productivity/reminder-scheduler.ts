@@ -1,5 +1,6 @@
 import type { Reminder } from '../../domain/entities/reminder';
 import { createProactiveReminderCopy } from '../companion/companion-feedback';
+import { runtimeLogger } from '../../shared/runtime-logger';
 
 export interface ReminderScheduleRepository {
   findPending(): Promise<Reminder[]>;
@@ -14,18 +15,18 @@ export class ReminderScheduler {
   constructor(
     private readonly reminderRepository: ReminderScheduleRepository,
     private readonly notifyReminder: (message: string) => void = (message) => {
-      console.info(message);
+      runtimeLogger.info(message);
     },
   ) {}
 
   start(): void {
-    if (this.timerId !== null) return;
+    if (this.timerId !== null) {return;}
     this.timerId = setInterval(() => this.checkReminders(), CHECK_INTERVAL_MS);
     this.checkReminders();
   }
 
   stop(): void {
-    if (this.timerId === null) return;
+    if (this.timerId === null) {return;}
     clearInterval(this.timerId);
     this.timerId = null;
   }
