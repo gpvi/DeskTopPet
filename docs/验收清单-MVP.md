@@ -178,7 +178,7 @@
 阻塞与风险：
 - `npm run smoke:check` 结果为 `pass=26,warn=0,fail=0`，静态检查已覆盖核心任务依赖与 QuickActions 执行链路。
 - 本轮是静态联调 + 构建验证，尚未覆盖通知权限、工具调用系统侧弹窗、窗口交互等 GUI 全链路行为。
-- `npm run build` 存在非阻塞告警（chunk size 与 `lottie-web` 的 eval 告警），当前不影响功能验收结论。
+- `npm run build` 当前仅剩 `lottie-web` 的 eval 非阻塞告警，不影响功能验收结论。
 
 补充记录：
 - QuickActions 已接入 `sendMessage` 主链路，动作触发后进入与聊天输入一致的消息发送路径。
@@ -186,6 +186,8 @@
 - Smoke 校验：`npm run smoke:check` 通过（`pass=26,warn=0,fail=0`），未见 QuickActions→`sendMessage` 接线回归。
 - 新增 `ConversationController` 的本地任务意图兜底 `inferTaskDecisionFromText`，在模型任务决策不稳定场景下补强任务分流可靠性。
 - 证据：`src/interfaces/controllers/conversation-controller.ts`（新增本地兜底判定），Smoke 最新结果 `pass=26,warn=0,fail=0`。
+- 已完成分包优化：构建侧采用 `manualChunks` + Lottie lazy 加载，chunk size 告警已消除。
+- 当前构建告警仅剩 `lottie-web` 的 eval 非阻塞项；Smoke 最新仍为 `pass=26,warn=0,fail=0`。
 
 下一步：
 - 执行一次 GUI 全量手工联调（聊天、提醒、待办、剪贴板、工具调用、动效切换），回填实际 pass/fail 证据。

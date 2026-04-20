@@ -671,8 +671,9 @@
 - 今日更新：`execute_task` 已接入提醒/待办/剪贴板/工具执行，不再是占位响应
 - 今日更新：快捷操作按钮调用已从 `addMessage` 改为 `sendMessage`，避免仅显示用户气泡而不触发执行；`smoke` 检查已增加 QuickActions 执行链路校验并通过（`pass=25,warn=0,fail=0`）
 - 当前构建已恢复可用（`npm run build` 通过），剩余一条打包告警为“同模块静态+动态导入导致分块无效”
-- 今日更新：`settingsStore` 已从动态导入 `composition-root` 改为静态导入，构建告警 `INEFFECTIVE_DYNAMIC_IMPORT` 已消除；当前剩余非阻塞告警为 `chunk size` 与 `lottie eval`
+- 今日更新：`settingsStore` 已从动态导入 `composition-root` 改为静态导入，构建告警 `INEFFECTIVE_DYNAMIC_IMPORT` 已消除；后续分包优化后当前仅剩 `lottie eval` 非阻塞告警
 - 今日更新：`ConversationController` 新增本地任务意图兜底（`inferTaskDecisionFromText`），当分类为 `continue_chat` 但命中任务关键词时仍可执行提醒/待办/剪贴板/打开工具；`smoke` 检查已新增任务路由接线校验并通过（`pass=26,warn=0,fail=0`）
+- 今日更新：已在 `vite.config.ts` 增加手动分包（`react/openai/sqljs/lottie`）；`PetShell` 改为 `lazy + Suspense` 动态加载 `lottie-react`；构建中的 `chunk size` 告警已消除；当前剩余非阻塞告警为 `lottie-web eval`
 
 可视为已完成的前置基础工作：
 
