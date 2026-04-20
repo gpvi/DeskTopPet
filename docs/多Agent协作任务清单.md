@@ -87,17 +87,17 @@
 
 | 编号 | 任务名称 | 优先级 | 状态 | owner | depends_on | 说明 |
 | --- | --- | --- | --- | --- | --- | --- |
-| T001 | 工程初始化与目录骨架 | P0 | todo | 待分配 | - | 初始化 Tauri + React + TypeScript 项目骨架 |
-| T002 | 工程规范与基础配置 | P0 | todo | 待分配 | T001 | 配置 lint、format、tsconfig、目录约束 |
-| T003 | 桌宠窗口壳层 | P0 | todo | 待分配 | T001 | 实现常驻窗口、置顶、拖拽、贴边基础能力 |
-| T004 | 聊天面板 UI 骨架 | P0 | todo | 待分配 | T001 | 聊天面板、输入框、消息列表、快捷入口 |
-| T005 | 应用分层与依赖注入骨架 | P0 | todo | 待分配 | T001 | 建立 domain/application/interfaces/infrastructure 分层 |
-| T006 | LLM 网关接口与 Provider 骨架 | P0 | todo | 待分配 | T005 | 定义统一模型网关和 Provider 抽象 |
-| T007 | 会话与消息存储 | P0 | todo | 待分配 | T005 | SQLite 表结构与 Repository 初版 |
-| T008 | 用户消息处理主链路 | P0 | todo | 待分配 | T004,T005,T006,T007 | 打通聊天输入到回复输出 |
+| T001 | 工程初始化与目录骨架 | P0 | done | Agent-A | - | 初始化 Tauri + React + TypeScript 项目骨架 |
+| T002 | 工程规范与基础配置 | P0 | done | Agent-A | T001 | 配置 lint、format、tsconfig、目录约束 |
+| T003 | 桌宠窗口壳层 | P0 | done | Agent-A | T001 | 实现常驻窗口、置顶、拖拽、贴边基础能力 |
+| T004 | 聊天面板 UI 骨架 | P0 | done | Agent-A | T001 | 聊天面板、输入框、消息列表、快捷入口 |
+| T005 | 应用分层与依赖注入骨架 | P0 | done | Agent-A | T001 | 建立 domain/application/interfaces/infrastructure 分层 |
+| T006 | LLM 网关接口与 Provider 骨架 | P0 | done | Agent-A | T005 | 定义统一模型网关和 Provider 抽象 |
+| T007 | 会话与消息存储 | P0 | done | Agent-A | T005 | SQLite 表结构与 Repository 初版 |
+| T008 | 用户消息处理主链路 | P0 | done | Agent-A | T004,T005,T006,T007 | 打通聊天输入到回复输出 |
 | T009 | 角色提示词接入 | P0 | todo | 待分配 | T006,T008 | 接入系统提示词与运行时上下文 |
 | T010 | 意图识别与任务分流 | P0 | todo | 待分配 | T006,T008 | 区分闲聊、问答、任务请求 |
-| T011 | 工具执行接口层 | P0 | todo | 待分配 | T005 | 封装网页、应用、文件夹、剪贴板等工具接口 |
+| T011 | 工具执行接口层 | P0 | done | Agent-A | T005 | 封装网页、应用、文件夹、剪贴板等工具接口 |
 | T012 | 提醒系统基础能力 | P0 | todo | 待分配 | T005,T007,T011 | 提醒数据、调度、通知闭环 |
 | T013 | 待办系统基础能力 | P0 | todo | 待分配 | T005,T007 | 待办增删改查与展示 |
 | T014 | 剪贴板总结/改写/翻译 | P0 | todo | 待分配 | T006,T010,T011 | 打通剪贴板工具与模型能力 |
@@ -230,7 +230,7 @@
 ### T008 用户消息处理主链路
 
 - `priority`：P0
-- `status`：todo
+- `status`：done
 - `owner`：待分配
 - `support`：待分配
 - `depends_on`：T004,T005,T006,T007
@@ -276,7 +276,7 @@
 ### T011 工具执行接口层
 
 - `priority`：P0
-- `status`：todo
+- `status`：done
 - `owner`：待分配
 - `support`：待分配
 - `depends_on`：T005

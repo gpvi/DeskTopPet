@@ -3,6 +3,7 @@ import type { LLMProviderConfig } from '../../infrastructure/llm/provider-config
 import { createLLMGateway } from '../../infrastructure/llm/gateway/provider-factory';
 import { initializeDatabase } from '../../infrastructure/persistence/sqlite/database';
 import { ConversationRepositoryImpl } from '../../infrastructure/persistence/repositories/conversation-repository-impl';
+import { createToolExecutor } from '../../infrastructure/system/launcher/tool-executor-factory';
 
 const PLACEHOLDER_LLM_CONFIG: LLMProviderConfig = {
   provider: 'deepseek',
@@ -26,24 +27,7 @@ export async function createAppContainer(
   return {
     llmGateway: createLLMGateway(llmConfig),
 
-    toolExecutor: {
-      async openUrl() {
-        console.warn('[Stub] ToolExecutor.openUrl — no adapter registered');
-        return { success: false, error: 'ToolExecutor adapter not implemented' };
-      },
-      async openApplication() {
-        console.warn('[Stub] ToolExecutor.openApplication — no adapter registered');
-        return { success: false, error: 'ToolExecutor adapter not implemented' };
-      },
-      async openFolder() {
-        console.warn('[Stub] ToolExecutor.openFolder — no adapter registered');
-        return { success: false, error: 'ToolExecutor adapter not implemented' };
-      },
-      async readClipboard() {
-        console.warn('[Stub] ToolExecutor.readClipboard — no adapter registered');
-        return { success: false, error: 'ToolExecutor adapter not implemented' };
-      },
-    },
+    toolExecutor: createToolExecutor(),
 
     conversationRepository,
 

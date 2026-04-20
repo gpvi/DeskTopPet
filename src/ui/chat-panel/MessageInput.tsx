@@ -2,38 +2,30 @@ import { useState, useRef, useCallback } from 'react';
 import { useChatStore } from './chatStore';
 import styles from './MessageInput.module.css';
 
-function createMessage(content: string): import('./types').ChatMessage {
-  return {
-    role: 'user',
-    content,
-    timestamp: Date.now(),
-  };
-}
-
 export default function MessageInput() {
   const [inputValue, setInputValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const addMessage = useChatStore((state) => state.addMessage);
+  const sendMessage = useChatStore((state) => state.sendMessage);
 
   const isInputEmpty = inputValue.trim().length === 0;
 
-  const sendMessage = useCallback(() => {
+  const submitMessage = useCallback(() => {
     if (isInputEmpty) return;
-    addMessage(createMessage(inputValue.trim()));
+    sendMessage(inputValue.trim());
     setInputValue('');
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-  }, [inputValue, isInputEmpty, addMessage]);
+  }, [inputValue, isInputEmpty, sendMessage]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
-        sendMessage();
+        submitMessage();
       }
     },
-    [sendMessage],
+    [submitMessage],
   );
 
   const handleInputChange = useCallback(
@@ -58,7 +50,7 @@ export default function MessageInput() {
       />
       <button
         className={styles.sendButton}
-        onClick={sendMessage}
+        onClick={submitMessage}
         disabled={isInputEmpty}
         type="button"
       >
