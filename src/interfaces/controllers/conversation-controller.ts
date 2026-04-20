@@ -5,7 +5,10 @@ import type { ModelUsageRecord } from '../../domain/entities/model-usage-record'
 import { SendMessageUseCase } from '../../application/conversation/send-message.usecase';
 import { PersonaPromptAssembler } from '../../application/conversation/persona-prompt-assembler';
 import { ClassifyIntentUseCase } from '../../application/conversation/classify-intent.usecase';
-import { IntentRouter } from '../../application/conversation/intent-router';
+import {
+  IntentRouter,
+  type RoutingDecision,
+} from '../../application/conversation/intent-router';
 import { SaveMemoryUseCase } from '../../application/memory/save-memory.usecase';
 import { RecallMemoryUseCase } from '../../application/memory/recall-memory.usecase';
 import { CreateReminderUseCase } from '../../application/productivity/create-reminder.usecase';
@@ -14,7 +17,6 @@ import { ReminderScheduler } from '../../application/productivity/reminder-sched
 import { OpenToolUseCase } from '../../application/task/open-tool-use-case';
 import { ClipboardUseCase } from '../../application/task/clipboard-use-case';
 import type { ClipboardAction } from '../../application/task/clipboard-prompts';
-import type { RoutingDecision } from '../../application/conversation/intent-router';
 import {
   createCompletionFeedbackCopy,
   createProactiveReminderCopy,
@@ -330,7 +332,7 @@ export class ConversationController {
     try {
       await this.respondWithChat(userText);
     } catch (chatError: unknown) {
-      this.reportErrorToChat(classificationError);
+      this.reportErrorToChat(chatError ?? classificationError);
     }
   }
 
@@ -357,7 +359,7 @@ export class ConversationController {
       'content',
       'task',
     ]);
-    if (fromParameters) return fromParameters;
+    if (fromParameters) {return fromParameters;}
 
     const cleaned = userText
       .replace(/.*提醒我/u, '')
@@ -412,9 +414,9 @@ export class ConversationController {
     ]);
     const source = (parameterAction ?? userText).toLowerCase();
 
-    if (/(list|show|查看|列出|全部待办|待办列表)/u.test(source)) return 'list';
-    if (/(complete|done|finish|完成|标记完成)/u.test(source)) return 'complete';
-    if (/(delete|remove|删除|移除)/u.test(source)) return 'delete';
+    if (/(list|show|查看|列出|全部待办|待办列表)/u.test(source)) {return 'list';}
+    if (/(complete|done|finish|完成|标记完成)/u.test(source)) {return 'complete';}
+    if (/(delete|remove|删除|移除)/u.test(source)) {return 'delete';}
     return 'create';
   }
 
@@ -428,7 +430,7 @@ export class ConversationController {
       'content',
       'task',
     ]);
-    if (fromParameters) return fromParameters;
+    if (fromParameters) {return fromParameters;}
 
     const cleaned = userText
       .replace(/^(帮我|请)?(创建|新增|添加)?(一个)?待办(事项)?/u, '')
@@ -453,12 +455,12 @@ export class ConversationController {
       'action',
       'mode',
     ])?.toLowerCase();
-    if (parameterAction === 'rewrite') return 'rewrite';
-    if (parameterAction === 'translate') return 'translate';
-    if (parameterAction === 'summarize') return 'summarize';
+    if (parameterAction === 'rewrite') {return 'rewrite';}
+    if (parameterAction === 'translate') {return 'translate';}
+    if (parameterAction === 'summarize') {return 'summarize';}
 
-    if (/(翻译|translate)/iu.test(userText)) return 'translate';
-    if (/(改写|润色|rewrite)/iu.test(userText)) return 'rewrite';
+    if (/(翻译|translate)/iu.test(userText)) {return 'translate';}
+    if (/(改写|润色|rewrite)/iu.test(userText)) {return 'rewrite';}
     return 'summarize';
   }
 
@@ -472,16 +474,16 @@ export class ConversationController {
     }
 
     const urlMatch = /(https?:\/\/[^\s]+)/iu.exec(userText);
-    if (urlMatch) return this.normalizeUrl(urlMatch[1]);
+    if (urlMatch) {return this.normalizeUrl(urlMatch[1]);}
 
     const domainMatch = /\b([a-z0-9-]+\.[a-z]{2,})(\/[^\s]*)?\b/iu.exec(userText);
-    if (!domainMatch) return null;
+    if (!domainMatch) {return null;}
     return this.normalizeUrl(`${domainMatch[1]}${domainMatch[2] ?? ''}`);
   }
 
   private normalizeUrl(rawUrl: string): string {
     const trimmed = rawUrl.trim();
-    if (/^https?:\/\//iu.test(trimmed)) return trimmed;
+    if (/^https?:\/\//iu.test(trimmed)) {return trimmed;}
     return `https://${trimmed}`;
   }
 
@@ -495,7 +497,7 @@ export class ConversationController {
       'application',
       'name',
     ]);
-    if (fromParameters) return fromParameters;
+    if (fromParameters) {return fromParameters;}
 
     const normalized = userText
       .replace(/^(请|帮我)?(打开|启动|运行)/u, '')
@@ -513,10 +515,10 @@ export class ConversationController {
       'path',
       'directory',
     ]);
-    if (fromParameters) return fromParameters;
+    if (fromParameters) {return fromParameters;}
 
     const quotedPath = /["']([^"']+)["']/u.exec(userText);
-    if (quotedPath) return quotedPath[1];
+    if (quotedPath) {return quotedPath[1];}
 
     const normalized = userText
       .replace(/^(请|帮我)?打开(文件夹|目录)/u, '')
@@ -528,7 +530,7 @@ export class ConversationController {
     parameters: Record<string, string> | undefined,
     keys: string[],
   ): string | null {
-    if (!parameters) return null;
+    if (!parameters) {return null;}
 
     for (const key of keys) {
       const value = parameters[key];
@@ -540,7 +542,7 @@ export class ConversationController {
   }
 
   private formatDateTime(date: Date | undefined): string {
-    if (!date) return '稍后';
+    if (!date) {return '稍后';}
     return new Intl.DateTimeFormat('zh-CN', {
       hour12: false,
       month: '2-digit',
@@ -554,7 +556,7 @@ export class ConversationController {
     const rawValue = await this.appContainer.settingsRepository.get(
       ConversationController.REMINDER_ENABLED_KEY,
     );
-    if (rawValue === null) return true;
+    if (rawValue === null) {return true;}
     return rawValue === 'true';
   }
 
@@ -562,7 +564,7 @@ export class ConversationController {
     userText: string,
   ): (RoutingDecision & { routingType: 'execute_task' }) | null {
     const text = userText.trim();
-    if (!text) return null;
+    if (!text) {return null;}
 
     if (/(提醒|闹钟|定时)/u.test(text)) {
       return {
@@ -617,7 +619,7 @@ export class ConversationController {
 
   private async tryHandleMemoryCommand(userText: string): Promise<boolean> {
     const trimmedText = userText.trim();
-    if (!trimmedText) return false;
+    if (!trimmedText) {return false;}
 
     if (trimmedText.startsWith('记住')) {
       return this.handleSaveMemoryCommand(trimmedText);

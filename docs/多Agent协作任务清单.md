@@ -116,7 +116,7 @@
 | T027 | SQLite 持久化落地 | P0 | review | Codex + Worker-Descartes | T007 | 已完成基于 dbPath+localStorage 的持久化策略，待重启验证与容量评估 |
 | T028 | 安全执行策略与高风险操作确认 | P0 | todo | Codex | T010,T011,T015 | 为应用/文件夹打开能力增加白名单、参数校验、二次确认 |
 | T029 | 本地数据持久化安全加固 | P0 | todo | Codex | T007,T017,T020,T027 | 评估并落地敏感数据加密或安全存储替代 localStorage 明文快照 |
-| T030 | Lint 基线治理与 CI 门禁 | P1 | todo | Codex | T002 | 收敛当前 45 error/9 warning，恢复可执行质量门禁 |
+| T030 | Lint 基线治理与 CI 门禁 | P1 | in_progress | Codex | T002 | 已收敛至 0 error/9 warning，下一步处理 no-console 策略与 CI 门禁 |
 | T031 | 提醒调度健壮性与生命周期收口 | P1 | todo | Codex | T012,T018 | 处理定时任务异步异常、重复触发与控制器销毁时 stop |
 | T032 | 待办多用户约束与越权防护 | P1 | todo | Codex | T013 | 完成/删除待办需携带 userId 约束并校验影响行数 |
 | T033 | 单元测试体系扩展与行为级 smoke | P1 | in_progress | Codex + Worker-Ramanujan | T025 | 已接入 Vitest 与 7 个用例，下一步覆盖 controller/task 关键行为 |
@@ -683,6 +683,8 @@
 - 今日更新：已引入 `Vitest` 单测基础设施，新增 3 个测试文件、7 个用例，`npm run test:run` 全通过（`7 passed`）
 - 阶段分析（多 Agent）：`build/smoke/test` 通过，`lint` 失败（`54 problems: 45 errors, 9 warnings`）
 - 阶段问题归档：已新增 `T028~T033`，覆盖执行安全、数据安全、提醒调度健壮性、多用户约束、Lint 基线与测试体系扩展
+- 今日更新（T030）：`npm run lint` 已从 `45 errors` 收敛到 `0 errors`（当前仅 `9 warnings`，均为 `no-console`）
+- 今日更新（T033）：`Vitest` 单测已实跑通过（`3 files / 7 tests passed`），`test/build/smoke` 三项均通过
 
 可视为已完成的前置基础工作：
 

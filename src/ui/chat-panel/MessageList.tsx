@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useChatStore } from './chatStore';
+import type { ChatMessage } from './types';
 import styles from './MessageList.module.css';
 
 function formatTime(timestamp: number): string {
@@ -9,7 +10,7 @@ function formatTime(timestamp: number): string {
   });
 }
 
-function MessageItem({ message }: { message: import('./types').ChatMessage }) {
+function MessageItem({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user';
   return (
     <div className={`${styles.message} ${isUser ? styles.userMessage : styles.assistantMessage}`}>

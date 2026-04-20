@@ -50,9 +50,9 @@ function resolveDisplayMood(params: {
 }): DisplayMood {
   const { isTyping, now, happyUntil, reminderUntil, mood } = params;
 
-  if (isTyping) return 'thinking';
-  if (now < happyUntil || mood === 'happy') return 'happy';
-  if (now < reminderUntil || mood === 'reminding') return 'reminding';
+  if (isTyping) {return 'thinking';}
+  if (now < happyUntil || mood === 'happy') {return 'happy';}
+  if (now < reminderUntil || mood === 'reminding') {return 'reminding';}
   return 'idle';
 }
 
@@ -65,10 +65,13 @@ export default function PetShell() {
   const [happyUntil, setHappyUntil] = useState(0);
   const [reminderUntil, setReminderUntil] = useState(0);
   const lastAssistantRef = useRef(0);
-  const lastInteractionRef = useRef(Date.now());
+  const lastInteractionRef = useRef(0);
   const lastReminderAtRef = useRef(0);
 
   useEffect(() => {
+    if (lastInteractionRef.current === 0) {
+      lastInteractionRef.current = Date.now();
+    }
     const timer = window.setInterval(() => setNow(Date.now()), REMINDER_TICK_MS);
     return () => window.clearInterval(timer);
   }, []);

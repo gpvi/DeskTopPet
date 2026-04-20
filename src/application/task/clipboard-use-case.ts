@@ -1,7 +1,9 @@
 import type { ToolExecutor } from '../../domain/ports/tool-executor.port';
 import type { LLMGateway } from '../../domain/ports/llm-gateway.port';
-import type { ClipboardAction } from './clipboard-prompts';
-import { buildClipboardPrompt } from './clipboard-prompts';
+import {
+  buildClipboardPrompt,
+  type ClipboardAction,
+} from './clipboard-prompts';
 
 const EMPTY_CLIPBOARD_ERROR = '剪贴板是空的，先复制一些内容再试试吧~';
 

@@ -1,5 +1,8 @@
-import type { IntentClassificationResult } from './intent-types';
-import { isChatIntent, isTaskIntent } from './intent-types';
+import {
+  isChatIntent,
+  isTaskIntent,
+  type IntentClassificationResult,
+} from './intent-types';
 
 export type RoutingDecision =
   | { readonly routingType: 'continue_chat' }
