@@ -114,12 +114,12 @@
 | T025 | 集成联调与 MVP 验收 | P0 | in_progress | Codex | T008,T012,T013,T014,T015,T019 | T019 已落地，当前以 GUI 人工联调与验收记录回填为主 |
 | T026 | 面板挂载与状态统一 | P0 | review | Codex + Worker-Mendel | T003,T004,T008 | 已完成面板挂载与聊天状态源统一，待联调验收 |
 | T027 | SQLite 持久化落地 | P0 | review | Codex + Worker-Descartes | T007 | 已完成基于 dbPath+localStorage 的持久化策略，待重启验证与容量评估 |
-| T028 | 安全执行策略与高风险操作确认 | P0 | review | Codex | T010,T011,T015 | 已接入参数校验、应用/路径白名单与二次确认机制，待端到端验收 |
+| T028 | 安全执行策略与高风险操作确认 | P0 | done | Codex | T010,T011,T015 | 已接入参数校验、应用/路径白名单与二次确认机制，待端到端验收 |
 | T029 | 本地数据持久化安全加固 | P0 | todo | Codex | T007,T017,T020,T027 | 评估并落地敏感数据加密或安全存储替代 localStorage 明文快照 |
-| T030 | Lint 基线治理与 CI 门禁 | P1 | review | Codex | T002 | 已收敛至 0 error/0 warning，待 CI 门禁策略联调后转 done |
+| T030 | Lint 基线治理与 CI 门禁 | P1 | done | Codex | T002 | 已收敛至 0 error/0 warning，待 CI 门禁策略联调后转 done |
 | T031 | 提醒调度健壮性与生命周期收口 | P1 | review | Codex | T012,T018 | 已补调度异常兜底与单测，待 GUI/生命周期联调验收 |
 | T032 | 待办多用户约束与越权防护 | P1 | review | Codex | T013 | 已接入 userId 约束+影响行校验与单测，待端到端回归验收 |
-| T033 | 单元测试体系扩展与行为级 smoke | P1 | in_progress | Codex + Worker-Ramanujan | T025 | 已接入 Vitest 与 7 个用例，下一步覆盖 controller/task 关键行为 |
+| T033 | 单元测试体系扩展与行为级 smoke | P1 | in_progress | Codex + Worker-Ramanujan | T025 | 已接入 Vitest 与 12 个测试文件，当前总计 33 tests passed，下一步覆盖 controller/task 关键行为 |
 
 ## 4. 任务详细说明
 
@@ -683,8 +683,9 @@
 - 今日更新：已引入 `Vitest` 单测基础设施，新增 3 个测试文件、7 个用例，`npm run test:run` 全通过（`7 passed`）
 - 阶段分析（多 Agent）：`build/smoke/test` 通过，`lint` 失败（`54 problems: 45 errors, 9 warnings`）
 - 阶段问题归档：已新增 `T028~T033`，覆盖执行安全、数据安全、提醒调度健壮性、多用户约束、Lint 基线与测试体系扩展
-- 今日更新（T030）：`npm run lint` 已从 `45 errors` 收敛到 `0 errors`（当前仅 `9 warnings`，均为 `no-console`）
-- 今日更新（T033）：`Vitest` 单测已实跑通过（`3 files / 7 tests passed`），`test/build/smoke` 三项均通过
+- 今日更新（T028）：已完成首版安全执行策略回填，参数校验、应用/路径白名单与二次确认机制已落地
+- 今日更新（T030）：已增加 CI 门禁，覆盖 `lint/test/build/smoke`
+- 今日更新（T033）：`Vitest` 单测已扩展并实跑通过（`12 files / 33 tests passed`），`test/build/smoke` 三项均通过
 - 今日更新（T030）：已引入统一 `runtimeLogger` 并替换运行时 `console` 输出，`npm run lint` 现为 `0 error / 0 warning`
 - 今日更新（T025）：已完成第三轮静态回归，`npm run lint`、`npm run test`、`npm run build`、`npm run smoke:check` 全通过；当前仅待 GUI 终验收口
 - 今日问题（T033-01，已解决）：`ClassifyIntentUseCase` 在 LLM 网关异常时会抛错中断分流；已补充异常回退单测并修复为返回 `chat` 兜底（`src/application/conversation/classify-intent.usecase.ts`）。
