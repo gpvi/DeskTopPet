@@ -3,8 +3,10 @@ import path from "node:path";
 import process from "node:process";
 
 const rootDir = process.cwd();
-const docsTaskPath = path.join(rootDir, "docs", "多Agent协作任务清单.md");
-const acceptanceDocPath = path.join(rootDir, "docs", "验收清单-MVP.md");
+const docsTaskPathCandidates = [
+  path.join(rootDir, "docs", "05-多Agent任务清单.md"),
+];
+const acceptanceDocPath = path.join(rootDir, "docs", "06-验收与质量门禁.md");
 
 const requiredFiles = [
   { path: "src/interfaces/controllers/conversation-controller.ts", task: "T008" },
@@ -16,11 +18,18 @@ const requiredFiles = [
   { path: "src/application/task/open-tool-use-case.ts", task: "T015" },
   { path: "src/ui/desktop-pet/PetShell.tsx", task: "T019" },
   { path: "src/ui/chat-panel/QuickActions.tsx", task: "T025" },
-  { path: "docs/多Agent协作任务清单.md", task: "T025" },
-  { path: "docs/验收清单-MVP.md", task: "T025" },
+  { path: "docs/05-多Agent任务清单.md", task: "T025" },
+  { path: "docs/06-验收与质量门禁.md", task: "T025" },
 ];
 
-const dependencyTaskIds = ["T008", "T012", "T013", "T014", "T015", "T019"];
+const dependencyTaskIds = [
+  { primary: "DEV008", fallback: "T008" },
+  { primary: "DEV012", fallback: "T012" },
+  { primary: "DEV013", fallback: "T013" },
+  { primary: "DEV014", fallback: "T014" },
+  { primary: "DEV015", fallback: "T015" },
+  { primary: "DEV019", fallback: "T019" },
+];
 const allowedStatuses = new Set(["todo", "in_progress", "blocked", "review", "done"]);
 
 const state = {
@@ -66,9 +75,10 @@ function checkRequiredFiles() {
 function parseTaskStatuses(markdown) {
   const lines = markdown.split(/\r?\n/);
   const taskStatusMap = new Map();
+  const taskIdPattern = /^(T\d{3}|DEV\d{3}|TEST\d{3}|BUG\d{3})$/;
 
   for (const line of lines) {
-    if (!line.startsWith("| T")) {
+    if (!line.startsWith("| ")) {
       continue;
     }
 
@@ -80,7 +90,7 @@ function parseTaskStatuses(markdown) {
     const taskId = columns[1];
     const status = columns[4];
 
-    if (!taskId || !status) {
+    if (!taskId || !status || !taskIdPattern.test(taskId)) {
       continue;
     }
 
@@ -90,13 +100,33 @@ function parseTaskStatuses(markdown) {
   return taskStatusMap;
 }
 
+function resolveTaskDocPath() {
+  for (const candidate of docsTaskPathCandidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
 function checkTaskDependencies() {
+  const docsTaskPath = resolveTaskDocPath();
+  if (!docsTaskPath) {
+    fail("Task overview document missing: docs/05-多Agent任务清单.md or docs/多Agent协作任务清单.md");
+    return;
+  }
+
+  pass(`Task overview document loaded: ${path.relative(rootDir, docsTaskPath)}`);
   const markdown = readText(docsTaskPath);
   const taskStatuses = parseTaskStatuses(markdown);
 
-  for (const taskId of dependencyTaskIds) {
+  for (const dependency of dependencyTaskIds) {
+    const taskId = taskStatuses.has(dependency.primary)
+      ? dependency.primary
+      : dependency.fallback;
+
     if (!taskStatuses.has(taskId)) {
-      fail(`T025 dependency missing from task list: ${taskId}`);
+      fail(`T025/DEV025 dependency missing from task list: ${dependency.primary} (fallback ${dependency.fallback})`);
       continue;
     }
 
@@ -109,24 +139,24 @@ function checkTaskDependencies() {
     pass(`Task ${taskId} status is valid: ${status}`);
   }
 
-  const t019Status = taskStatuses.get("T019");
+  const t019Status = taskStatuses.get("DEV019") ?? taskStatuses.get("T019");
   if (t019Status && !["review", "done"].includes(t019Status)) {
-    warn(`T019 status is ${t019Status}; full MVP acceptance is not closed yet`);
+    warn(`DEV019/T019 status is ${t019Status}; full MVP acceptance is not closed yet`);
   }
 
-  const t025Status = taskStatuses.get("T025");
+  const t025Status = taskStatuses.get("DEV025") ?? taskStatuses.get("T025");
   if (!t025Status) {
-    fail("T025 is missing from task overview table");
+    fail("DEV025/T025 is missing from task overview table");
   } else if (!allowedStatuses.has(t025Status)) {
-    fail(`T025 has invalid status value: ${t025Status}`);
+    fail(`DEV025/T025 has invalid status value: ${t025Status}`);
   } else {
-    pass(`T025 status is valid: ${t025Status}`);
+    pass(`DEV025/T025 status is valid: ${t025Status}`);
   }
 }
 
 function checkAcceptanceDocContent() {
   const markdown = readText(acceptanceDocPath);
-  const sections = ["T008", "T012", "T013", "T014", "T015", "T019"];
+  const sections = ["DEV008", "DEV012", "DEV013", "DEV014", "DEV015", "DEV019"];
 
   for (const section of sections) {
     if (markdown.includes(section)) {

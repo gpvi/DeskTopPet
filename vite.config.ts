@@ -2,6 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 const host = process.env.TAURI_DEV_HOST;
+const devPort = Number.parseInt(process.env.TAURI_DEV_PORT ?? "1420", 10);
+const hmrPort = Number.parseInt(process.env.TAURI_DEV_HMR_PORT ?? String(devPort + 1), 10);
 
 export default defineConfig({
   plugins: [react()],
@@ -42,14 +44,14 @@ export default defineConfig({
   },
   clearScreen: false,
   server: {
-    port: 1420,
+    port: devPort,
     strictPort: true,
     host: host || false,
     hmr: host
       ? {
           protocol: "ws",
           host,
-          port: 1421,
+          port: hmrPort,
         }
       : undefined,
     watch: {

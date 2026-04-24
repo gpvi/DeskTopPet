@@ -25,6 +25,14 @@ async function tryRegisterTauriShortcut(
       '@tauri-apps/plugin-global-shortcut'
     );
 
+    if (
+      'isRegistered' in plugin &&
+      typeof plugin.isRegistered === 'function' &&
+      await plugin.isRegistered(CHAT_SHORTCUT)
+    ) {
+      await plugin.unregister(CHAT_SHORTCUT);
+    }
+
     await plugin.register(CHAT_SHORTCUT, onTrigger);
     return () => {
       void plugin.unregister(CHAT_SHORTCUT);

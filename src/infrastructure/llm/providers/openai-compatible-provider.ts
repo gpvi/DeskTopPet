@@ -23,6 +23,7 @@ export class OpenAICompatibleProvider implements LLMGateway {
     this.client = new OpenAI({
       apiKey: config.apiKey,
       baseURL: config.baseUrl,
+      dangerouslyAllowBrowser: true,
     });
     this.providerName = config.provider;
     this.defaultModel = config.defaultModel;

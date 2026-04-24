@@ -47,6 +47,10 @@ async function applyAutoStart(enabled: boolean): Promise<void> {
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    if (isExpectedAutoStartMissingError(message)) {
+      runtimeLogger.info('[Runtime] Auto-start entry not found; treated as already disabled.');
+      return;
+    }
     runtimeLogger.warn(`[Runtime] Auto-start apply failed: ${message}`);
   }
 }
@@ -92,4 +96,8 @@ function isTauriEnvironment(): boolean {
     typeof window !== 'undefined' &&
     '__TAURI_INTERNALS__' in window
   );
+}
+
+function isExpectedAutoStartMissingError(message: string): boolean {
+  return /os error 2|系统找不到指定的文件/iu.test(message);
 }

@@ -1,4 +1,5 @@
 import initSqlJs, { type Database as SqlJsDatabase } from 'sql.js';
+import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import { runtimeLogger } from '../../../shared/runtime-logger';
 import { MIGRATION_001_CONVERSATIONS } from './migrations/001-conversations';
 import { MIGRATION_002_REMINDERS } from './migrations/002-reminders';
@@ -29,7 +30,9 @@ const ALL_MIGRATIONS: string[] = [
 export async function initializeDatabase(
   dbPath: string,
 ): Promise<SqlJsDatabase> {
-  const sqlJs = await initSqlJs();
+  const sqlJs = await initSqlJs({
+    locateFile: resolveSqlWasmPath,
+  });
   const storage = createStorageAdapter(dbPath);
   const snapshot = storage ? await storage.load() : null;
   const database = snapshot ? new sqlJs.Database(snapshot) : new sqlJs.Database();
@@ -45,6 +48,18 @@ export async function initializeDatabase(
   }
 
   return database;
+}
+
+function resolveSqlWasmPath(): string {
+  if (typeof window === 'undefined') {
+    const cwd = typeof process !== 'undefined' && typeof process.cwd === 'function'
+      ? process.cwd()
+      : '';
+    if (cwd && sqlWasmUrl.startsWith('/')) {
+      return `${cwd}${sqlWasmUrl}`;
+    }
+  }
+  return sqlWasmUrl;
 }
 
 function runMigrations(database: SqlJsDatabase): void {

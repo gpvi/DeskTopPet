@@ -6,7 +6,11 @@
   align-items: center;
   justify-content: flex-start;
   gap: 6px;
-  background: transparent;
+  background: rgba(18, 18, 35, 0.85);
+  border-radius: 24px;
+  border: 1px solid rgba(0, 120, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 120, 255, 0.2),
+              0 2px 8px rgba(0, 0, 0, 0.3);
   cursor: grab;
   user-select: none;
 }
