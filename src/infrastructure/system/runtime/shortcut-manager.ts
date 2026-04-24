@@ -3,6 +3,11 @@ import { runtimeLogger } from '../../../shared/runtime-logger';
 const CHAT_SHORTCUT = 'Ctrl+Shift+P';
 
 type ShortcutCleanup = () => void;
+type GlobalShortcutPlugin = {
+  register(shortcut: string, handler: () => void): Promise<void>;
+  unregister(shortcut: string): Promise<void>;
+  isRegistered?: (shortcut: string) => Promise<boolean>;
+};
 
 export async function setupChatShortcut(
   onTrigger: () => void,
@@ -24,22 +29,39 @@ async function tryRegisterTauriShortcut(
       /* @vite-ignore */
       '@tauri-apps/plugin-global-shortcut'
     );
+    const register = readPluginFunction(plugin, 'register');
+    const unregister = readPluginFunction(plugin, 'unregister');
+    const isRegistered = readPluginFunction(plugin, 'isRegistered');
 
-    if (
-      'isRegistered' in plugin &&
-      typeof plugin.isRegistered === 'function' &&
-      await plugin.isRegistered(CHAT_SHORTCUT)
-    ) {
-      await plugin.unregister(CHAT_SHORTCUT);
+    if (!register || !unregister) {
+      throw new Error('global shortcut plugin missing register/unregister');
     }
 
-    await plugin.register(CHAT_SHORTCUT, onTrigger);
+    if (isRegistered && await isRegistered(CHAT_SHORTCUT)) {
+      await unregister(CHAT_SHORTCUT);
+    }
+
+    await register(CHAT_SHORTCUT, onTrigger);
     return () => {
-      void plugin.unregister(CHAT_SHORTCUT);
+      void unregister(CHAT_SHORTCUT);
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     runtimeLogger.warn(`[Shortcut] Tauri shortcut unavailable: ${message}`);
+    return null;
+  }
+}
+
+function readPluginFunction(
+  plugin: unknown,
+  name: keyof GlobalShortcutPlugin,
+): ((shortcut: string, handler?: () => void) => Promise<unknown>) | null {
+  try {
+    const value = (plugin as Partial<GlobalShortcutPlugin>)[name];
+    return typeof value === 'function'
+      ? value as (shortcut: string, handler?: () => void) => Promise<unknown>
+      : null;
+  } catch {
     return null;
   }
 }

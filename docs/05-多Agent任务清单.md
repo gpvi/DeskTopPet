@@ -88,12 +88,12 @@
 | BUG005 | 待办多用户约束与越权防护 | P1 | review | Codex | productivity | DEV013 | 2026-04-21 | userId 约束与影响行校验 |
 | BUG006 | Lottie eval 告警治理 | P1 | done | Codex | frontend-shell | DEV019 | 2026-04-21 | 切换到 lottie_light |
 | BUG007 | 本地密钥与快照安全升级 | P0 | in_progress | Codex | security-persistence | BUG002 | 2026-04-24 | 密钥迁移到系统安全存储 |
-| BUG008 | Tauri GNU 运行链路收口 | P0 | in_progress | Codex | tauri-runtime | DEV025 | 2026-04-24 | GNU 固定目标运行/检查脚本 |
+| BUG008 | Tauri GNU 运行链路收口 | P0 | done | Codex | tauri-runtime | DEV025 | 2026-04-24 | `tauri:dev` 自动探测 Windows 已安装 Rust target，`tauri:check:gnu` 通过 |
 | BUG009 | 开发端口占用与并发启动治理 | P1 | in_progress | Codex | tauri-runtime | DEV025 | 2026-04-24 | 端口探测与冲突回退启动 |
 | BUG010 | Smoke 脚本文档路径断链 | P1 | done | Codex | quality-docs | DEV025 | 2026-04-21 | 旧任务文档拆分后 smoke 恢复 |
 | BUG011 | tauri-dev 启动链路留证收口 | P0 | in_progress | Codex | tauri-runtime | BUG009 | 2026-04-24 | JSON 解析报错已消除；待补完整启动留证 |
-| BUG012 | TypeScript 6 构建配置修复 | P0 | in_progress | Codex | quality | DEV002 | 2026-04-24 | 正在修复 `ignoreDeprecations` 与 `baseUrl` 策略导致的 build 失败 |
-| BUG013 | Tauri 残留进程与热键重复注册治理 | P0 | todo | Tauri Agent | tauri-runtime | BUG008,BUG009 | 2026-04-24 | `app.exe/cargo/node` 残留导致 os error 32 和 HotKey already registered |
+| BUG012 | TypeScript 6 构建配置修复 | P0 | done | Codex | quality | DEV002 | 2026-04-24 | 已修复 TypeScript 6 deprecation 配置、sql.js wasm 路径类型和 shortcut 动态 import 类型；`npm run build`、`npm run test:run` 通过 |
+| BUG013 | Tauri 残留进程与热键重复注册治理 | P0 | review | Codex | tauri-runtime | BUG008,BUG009 | 2026-04-24 | 当前 `tauri:check:gnu` 已不再因文件占用失败；shortcut 注册改为安全读取 `isRegistered` 并在已注册时先注销，待 GUI/dev 长跑复验 |
 | BUG014 | 技术栈版本与包管理策略收口 | P1 | todo | Architecture Agent | foundation | DEV029 | 2026-04-24 | packageManager 标注 pnpm，但当前 lockfile 为 npm；需统一命令和锁文件策略 |
 
 ## 6. 推荐并行批次

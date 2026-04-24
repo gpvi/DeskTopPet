@@ -1,12 +1,16 @@
 import net from "node:net";
 import process from "node:process";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
 const DEFAULT_PORT = Number.parseInt(process.env.TAURI_DEV_PORT ?? "10000", 10);
 const MAX_PORT = Number.parseInt(process.env.TAURI_DEV_PORT_MAX ?? "10100", 10);
+const WINDOWS_TARGETS = [
+  "x86_64-pc-windows-msvc",
+  "x86_64-pc-windows-gnu",
+];
 
 function canUsePort(port) {
   return new Promise((resolve) => {
@@ -44,17 +48,19 @@ function runTauriDev(port) {
     }
     return arg.startsWith("--target=");
   });
-  const shouldDefaultToMsvc =
+  const defaultWindowsTarget =
     process.platform === "win32" &&
     !hasExplicitTarget &&
-    !process.env.CARGO_BUILD_TARGET;
-  const resolvedTauriArgs = shouldDefaultToMsvc
-    ? ["--target", "x86_64-pc-windows-msvc", ...tauriArgs]
+    !process.env.CARGO_BUILD_TARGET
+      ? resolveWindowsTarget()
+      : null;
+  const resolvedTauriArgs = defaultWindowsTarget
+    ? ["--target", defaultWindowsTarget, ...tauriArgs]
     : tauriArgs;
 
-  if (shouldDefaultToMsvc) {
+  if (defaultWindowsTarget) {
     console.warn(
-      "[T039] No explicit target detected; defaulting to x86_64-pc-windows-msvc for tauri dev.",
+      `[T039] No explicit target detected; defaulting to ${defaultWindowsTarget} for tauri dev.`,
     );
   }
   const overrideConfig = {
@@ -92,6 +98,38 @@ function runTauriDev(port) {
     fs.rmSync(configDirectory, { recursive: true, force: true });
     process.exit(code ?? 1);
   });
+}
+
+function resolveWindowsTarget() {
+  if (process.env.TAURI_DEV_TARGET) {
+    return process.env.TAURI_DEV_TARGET;
+  }
+
+  const installedTargets = getInstalledRustTargets();
+  for (const target of WINDOWS_TARGETS) {
+    if (installedTargets.has(target)) {
+      return target;
+    }
+  }
+
+  return WINDOWS_TARGETS[0];
+}
+
+function getInstalledRustTargets() {
+  try {
+    const output = execFileSync("rustup", ["target", "list", "--installed"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return new Set(
+      output
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean),
+    );
+  } catch {
+    return new Set();
+  }
 }
 
 async function main() {

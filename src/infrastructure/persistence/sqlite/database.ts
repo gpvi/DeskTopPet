@@ -51,15 +51,18 @@ export async function initializeDatabase(
 }
 
 function resolveSqlWasmPath(): string {
-  if (typeof window === 'undefined') {
-    const cwd = typeof process !== 'undefined' && typeof process.cwd === 'function'
-      ? process.cwd()
-      : '';
-    if (cwd && sqlWasmUrl.startsWith('/')) {
-      return `${cwd}${sqlWasmUrl}`;
-    }
+  const cwd = getNodeCwd();
+  if (cwd && sqlWasmUrl.startsWith('/')) {
+    return `${cwd}${sqlWasmUrl}`;
   }
   return sqlWasmUrl;
+}
+
+function getNodeCwd(): string {
+  const maybeProcess = (globalThis as { process?: { cwd?: unknown } }).process;
+  return typeof maybeProcess?.cwd === 'function'
+    ? maybeProcess.cwd()
+    : '';
 }
 
 function runMigrations(database: SqlJsDatabase): void {
