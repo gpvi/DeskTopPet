@@ -53,6 +53,9 @@ src-tauri/          # Rust backend: window management, notifications, global hot
 
 ## Build & Development Commands
 
+Package manager policy: use `npm` and keep `package-lock.json` as the canonical lockfile. Do not introduce `pnpm-lock.yaml` or `yarn.lock` unless `docs/08-技术选型挑战与优化.md` is updated with a new decision.
+
+- `npm install` — install dependencies from `package-lock.json`.
 - `npm run dev` — start Vite frontend only.
 - `npm run build` — run TypeScript check and Vite production build.
 - `npm run test:run` — run Vitest once.

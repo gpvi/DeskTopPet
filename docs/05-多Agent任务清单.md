@@ -94,7 +94,7 @@
 | BUG011 | tauri-dev 启动链路留证收口 | P0 | in_progress | Codex | tauri-runtime | BUG009 | 2026-04-24 | JSON 解析报错已消除；待补完整启动留证 |
 | BUG012 | TypeScript 6 构建配置修复 | P0 | done | Codex | quality | DEV002 | 2026-04-24 | 已修复 TypeScript 6 deprecation 配置、sql.js wasm 路径类型和 shortcut 动态 import 类型；`npm run build`、`npm run test:run` 通过 |
 | BUG013 | Tauri 残留进程与热键重复注册治理 | P0 | review | Codex | tauri-runtime | BUG008,BUG009 | 2026-04-24 | 当前 `tauri:check:gnu` 已不再因文件占用失败；shortcut 注册改为安全读取 `isRegistered` 并在已注册时先注销，待 GUI/dev 长跑复验 |
-| BUG014 | 技术栈版本与包管理策略收口 | P1 | todo | Architecture Agent | foundation | DEV029 | 2026-04-24 | packageManager 标注 pnpm，但当前 lockfile 为 npm；需统一命令和锁文件策略 |
+| BUG014 | 技术栈版本与包管理策略收口 | P1 | done | Codex | foundation | DEV029 | 2026-04-24 | 已收口为 npm + package-lock；`packageManager` 改为 `npm@11.6.3`，AGENTS/CLAUDE/技术选型文档已同步 |
 
 ## 6. 推荐并行批次
 
