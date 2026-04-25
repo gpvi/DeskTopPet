@@ -90,13 +90,17 @@ describe('SendMessageUseCase', () => {
         content: 'hello, I am your assistant',
       }),
     );
-    expect(llmGateway.completeChat).toHaveBeenCalledWith({
-      model: 'mock-model',
-      messages: [
-        expect.objectContaining({ role: 'system', content: 'system prompt' }),
-        expect.objectContaining({ role: 'user', content: 'previous message' }),
-      ],
-    });
+    expect(llmGateway.completeChat).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'mock-model',
+        feature: 'chat',
+        sessionId: 'session-1',
+        messages: [
+          expect.objectContaining({ role: 'system', content: 'system prompt' }),
+          expect.objectContaining({ role: 'user', content: 'previous message' }),
+        ],
+      }),
+    );
   });
 
   it('does not save assistant message when gateway fails after user message is persisted', async () => {

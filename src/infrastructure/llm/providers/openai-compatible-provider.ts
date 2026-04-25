@@ -49,7 +49,10 @@ export class OpenAICompatibleProvider implements LLMGateway {
       const response =
         await this.sendChatCompletion(completionRequest);
       const content = this.extractContentFromResponse(response);
-      return this.parseIntentClassification(content);
+      return {
+        ...this.parseIntentClassification(content),
+        ...this.extractUsageMetadata(response),
+      } as IntentClassificationResponse;
     } catch (error) {
       throw this.wrapAsGatewayError(error);
     }
@@ -88,6 +91,22 @@ export class OpenAICompatibleProvider implements LLMGateway {
   ): string {
     const choice = response.choices[0];
     return choice?.message?.content ?? '';
+  }
+
+  private extractUsageMetadata(
+    response: OpenAI.ChatCompletion,
+  ): {
+    provider: string;
+    model: string;
+    inputTokens: number;
+    outputTokens: number;
+  } {
+    return {
+      provider: this.providerName,
+      model: response.model,
+      inputTokens: response.usage?.prompt_tokens ?? 0,
+      outputTokens: response.usage?.completion_tokens ?? 0,
+    };
   }
 
   private buildIntentClassificationRequest(

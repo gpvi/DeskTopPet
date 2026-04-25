@@ -9,6 +9,9 @@ export interface ChatCompletionRequest {
   readonly model: string;
   readonly temperature?: number;
   readonly maxTokens?: number;
+  readonly feature?: string;
+  readonly sessionId?: string;
+  readonly taskId?: string;
 }
 
 /**

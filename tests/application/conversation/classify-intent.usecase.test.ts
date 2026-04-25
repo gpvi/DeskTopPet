@@ -33,15 +33,18 @@ describe('ClassifyIntentUseCase', () => {
         url: 'https://example.com',
       },
     });
-    expect(llmGateway.completeChat).toHaveBeenCalledWith({
-      messages: [
-        expect.objectContaining({ role: 'system' }),
-        expect.objectContaining({ role: 'user', content: '打开 example 网站' }),
-      ],
-      model: 'gpt-4o-mini',
-      temperature: 0,
-      maxTokens: 256,
-    });
+    expect(llmGateway.completeChat).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          expect.objectContaining({ role: 'system' }),
+          expect.objectContaining({ role: 'user', content: '打开 example 网站' }),
+        ],
+        model: 'gpt-4o-mini',
+        temperature: 0,
+        maxTokens: 256,
+        feature: 'intent_classification',
+      }),
+    );
   });
 
   it('falls back to chat when the LLM returns invalid or unsupported structure', async () => {

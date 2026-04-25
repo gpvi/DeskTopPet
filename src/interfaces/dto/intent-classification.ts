@@ -4,6 +4,8 @@
 export interface IntentClassificationRequest {
   readonly message: string;
   readonly sessionId: string;
+  readonly feature?: string;
+  readonly taskId?: string;
 }
 
 /**
@@ -13,4 +15,8 @@ export interface IntentClassificationResponse {
   readonly intent: 'chat' | 'task' | 'question';
   readonly confidence: number;
   readonly parameters?: Record<string, unknown>;
+  readonly provider?: string;
+  readonly model?: string;
+  readonly inputTokens?: number;
+  readonly outputTokens?: number;
 }

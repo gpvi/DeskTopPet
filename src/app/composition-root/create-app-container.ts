@@ -49,15 +49,16 @@ export async function createAppContainer(
 
   const database = await initializeDatabase(DEFAULT_DATABASE_PATH);
   const settingsRepository = new SettingsRepositoryImpl(database);
+  const usageRepository = new UsageRepositoryImpl(database);
 
   const configToUse = llmConfig ?? await loadLLMConfigFromRepository(settingsRepository);
 
   cachedContainer = {
-    llmGateway: createLLMGateway(configToUse),
+    llmGateway: createLLMGateway(configToUse, usageRepository),
     toolExecutor: createToolExecutor(),
     conversationRepository: new ConversationRepositoryImpl(database),
     memoryRepository: new MemoryRepositoryImpl(database),
-    usageRepository: new UsageRepositoryImpl(database),
+    usageRepository,
     reminderRepository: new ReminderRepositoryImpl(database),
     todoRepository: new TodoRepositoryImpl(database),
     settingsRepository,
@@ -73,7 +74,7 @@ export function getAppContainer(): AppContainer | null {
 export async function updateLLMConfigInContainer(config: LLMProviderConfig): Promise<void> {
   if (!cachedContainer) {return;}
 
-  cachedContainer.llmGateway = createLLMGateway(config);
+  cachedContainer.llmGateway = createLLMGateway(config, cachedContainer.usageRepository);
 }
 
 async function loadLLMConfigFromRepository(

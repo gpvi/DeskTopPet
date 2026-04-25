@@ -49,7 +49,7 @@
 | DEV017 | 记忆系统初版 | P1 | review | Codex | memory | DEV005,DEV006,DEV007 | 2026-04-21 | 显式记忆保存/回忆/清空 |
 | DEV018 | 主动提醒与陪伴反馈 | P1 | review | Codex | companion | DEV009,DEV012,DEV017 | 2026-04-21 | 提醒与任务反馈文案策略 |
 | DEV019 | Lottie 状态动画系统 | P1 | review | Codex | frontend-shell | DEV003,DEV004 | 2026-04-21 | 待机/思考/开心/提醒状态动画 |
-| DEV020 | Token 统计与调用日志 | P1 | in_progress | Codex | usage | DEV006,DEV007 | 2026-04-24 | usage 基础写入完成；任务链路和聚合覆盖待补齐 |
+| DEV020 | Token 统计与调用日志 | P1 | review | Codex | usage | DEV006,DEV007 | 2026-04-24 | 已通过 UsageTrackingLLMGateway 接入 completeChat/classifyIntent usage 记录；chat/intent/clipboard 请求携带 feature/session/task 上下文 |
 | DEV021 | 用量面板基础版 | P2 | review | Codex | frontend-settings | DEV004,DEV020 | 2026-04-21 | 近 7 日调用与 tokens 概览 |
 | DEV022 | 全局快捷键与唤起能力 | P1 | done | Codex | tauri-runtime | DEV003,DEV011 | 2026-04-24 | Tauri 全局快捷键 + Web 回退 |
 | DEV023 | 开机启动与权限管理 | P1 | done | Codex | tauri-runtime | DEV003,DEV011,DEV016 | 2026-04-24 | 自启动与通知权限 |
@@ -71,8 +71,8 @@
 | TEST005 | 剪贴板与工具调用测试 | P0 | review | Codex | quality-tools | DEV014,DEV015 | 2026-04-21 | 参数校验、失败提示、回退 |
 | TEST006 | 设置与系统能力测试 | P1 | review | Codex | quality-tauri | DEV016,DEV022,DEV023 | 2026-04-24 | 设置落库、快捷键、自启动、通知 |
 | TEST007 | 数据持久化与迁移测试 | P0 | in_progress | Codex | quality-persistence | DEV027 | 2026-04-21 | 重启恢复、迁移幂等、兼容性 |
-| TEST008 | 用量统计与展示测试 | P1 | review | Codex | quality-usage | DEV020,DEV021 | 2026-04-21 | usage 聚合和面板准确性 |
-| TEST009 | GUI 全链路终验与证据归档 | P0 | todo | Test Agent | quality-release | DEV025 | 2026-04-24 | 聊天/提醒/待办/剪贴板/工具/动效 |
+| TEST008 | 用量统计与展示测试 | P1 | review | Codex | quality-usage | DEV020,DEV021 | 2026-04-24 | 新增 UsageTrackingLLMGateway 单测，覆盖 chat 和 intent usage save 字段；聚合和 GUI 面板仍待终验 |
+| TEST009 | GUI 全链路终验与证据归档 | P0 | review | Codex | quality-release | DEV025 | 2026-04-24 | 已补充 GUI 终验流程、入口映射和 `scripts/gui-acceptance-check.mjs` 半自动自检；真实 Tauri GUI 点击证据仍待执行 |
 | TEST010 | 跨平台系统能力验收 | P1 | todo | Tauri Agent | quality-tauri | DEV022,DEV023 | 2026-04-24 | 快捷键/自启动/通知权限跨平台 |
 | TEST011 | 文档路径与 smoke 回归 | P1 | review | Docs Agent | quality-docs | DEV028 | 2026-04-24 | smoke 改为读取新任务与验收文档 |
 | TEST012 | 技术优化决策复核 | P1 | todo | Architecture Agent | quality-architecture | DEV029 | 2026-04-24 | 复核选型 challenge 是否转成任务或接受风险 |

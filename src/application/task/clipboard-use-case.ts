@@ -45,6 +45,8 @@ export class ClipboardUseCase {
         { role: 'user', content: prompts.userPrompt },
       ],
       model,
+      feature: `clipboard_${action}`,
+      taskId: `clipboard:${action}`,
     });
     return response.content;
   }

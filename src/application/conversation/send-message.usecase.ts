@@ -64,13 +64,14 @@ export class SendMessageUseCase {
     model: string,
   ) {
     const history = await this.conversationRepository.findMessagesBySession(sessionId);
-    const completionRequest = this.buildCompletionRequest(history, model);
+    const completionRequest = this.buildCompletionRequest(history, model, sessionId);
     return this.llmGateway.completeChat(completionRequest);
   }
 
   private buildCompletionRequest(
     history: ConversationMessage[],
     model: string,
+    sessionId: string,
   ): ChatCompletionRequest {
     const systemMessage = this.buildSystemMessage();
     const conversationMessages = history.map((message) => ({
@@ -81,6 +82,8 @@ export class SendMessageUseCase {
     return {
       messages: [systemMessage, ...conversationMessages],
       model,
+      feature: 'chat',
+      sessionId,
     };
   }
 

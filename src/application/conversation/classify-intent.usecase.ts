@@ -48,6 +48,7 @@ export class ClassifyIntentUseCase {
       model: model ?? 'deepseek-chat',
       temperature: 0,
       maxTokens: 256,
+      feature: 'intent_classification',
     };
   }
 
