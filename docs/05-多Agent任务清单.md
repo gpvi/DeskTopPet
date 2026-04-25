@@ -70,7 +70,7 @@
 | TEST004 | 待办能力行为测试 | P0 | review | Codex | quality-productivity | DEV013 | 2026-04-21 | 创建/完成/删除与越权 |
 | TEST005 | 剪贴板与工具调用测试 | P0 | review | Codex | quality-tools | DEV014,DEV015 | 2026-04-21 | 参数校验、失败提示、回退 |
 | TEST006 | 设置与系统能力测试 | P1 | review | Codex | quality-tauri | DEV016,DEV022,DEV023 | 2026-04-24 | 设置落库、快捷键、自启动、通知 |
-| TEST007 | 数据持久化与迁移测试 | P0 | in_progress | Codex | quality-persistence | DEV027 | 2026-04-21 | 重启恢复、迁移幂等、兼容性 |
+| TEST007 | 数据持久化与迁移测试 | P0 | review | Codex | quality-persistence | DEV027 | 2026-04-25 | 新增全迁移表快照重开与坏快照回退测试；database 持久化测试 4 passed，全量测试 46 passed |
 | TEST008 | 用量统计与展示测试 | P1 | review | Codex | quality-usage | DEV020,DEV021 | 2026-04-24 | 新增 UsageTrackingLLMGateway 单测，覆盖 chat 和 intent usage save 字段；聚合和 GUI 面板仍待终验 |
 | TEST009 | GUI 全链路终验与证据归档 | P0 | review | Codex | quality-release | DEV025 | 2026-04-24 | 已补充 GUI 终验流程、入口映射和 `scripts/gui-acceptance-check.mjs` 半自动自检；真实 Tauri GUI 点击证据仍待执行 |
 | TEST010 | 跨平台系统能力验收 | P1 | todo | Tauri Agent | quality-tauri | DEV022,DEV023 | 2026-04-24 | 快捷键/自启动/通知权限跨平台 |
