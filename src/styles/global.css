@@ -9,7 +9,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: rgba(18, 18, 35, 0.95);
+  background: transparent;
   width: 100%;
   height: 100%;
   user-select: none;
@@ -19,5 +19,5 @@ body {
 #root {
   width: 100%;
   height: 100%;
-  background: rgba(18, 18, 35, 0.95);
+  background: transparent;
 }

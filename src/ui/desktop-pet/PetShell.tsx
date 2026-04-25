@@ -6,6 +6,7 @@ import {
   petLottieByMood,
 } from './animations/petLottieAnimations';
 import LottieLightPlayer from './LottieLightPlayer';
+import tvRobotImage from './assets/tv-robot-cutout.png';
 import styles from './PetShell.module.css';
 
 const HAPPY_STATE_DURATION_MS = 2200;
@@ -118,7 +119,12 @@ export default function PetShell() {
   return (
     <div className={styles.petShell} data-tauri-drag-region onClick={handlePetClick}>
       <div className={styles.animationFrame} data-mood={displayMood}>
-        <div className={`${styles.fallbackPulse} ${styles[`fallback${displayMood}`]}`} />
+        <img
+          className={`${styles.robotImage} ${styles[`robot${displayMood}`]}`}
+          src={tvRobotImage}
+          alt="电视机机器人桌宠"
+          draggable={false}
+        />
         <LottieLightPlayer
           animationData={petLottieByMood[displayMood]}
           className={styles.lottieLayer}

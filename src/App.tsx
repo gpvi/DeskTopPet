@@ -9,7 +9,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'rgba(18, 18, 35, 0.95)',
+      background: 'transparent',
     }}>
       <PetShell />
     </div>

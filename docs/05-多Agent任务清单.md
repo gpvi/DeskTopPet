@@ -32,7 +32,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | DEV001 | 工程初始化与目录骨架 | P0 | done | Claude Code | foundation | - | 2026-04-20 | Tauri + React + TypeScript 骨架 |
 | DEV002 | 工程规范与基础配置 | P0 | done | Claude Code | foundation | DEV001 | 2026-04-20 | lint/format/tsconfig/目录约束 |
-| DEV003 | 桌宠窗口壳层 | P0 | in_progress | Claude Code | frontend-shell | DEV001 | 2026-04-24 | 常驻、置顶、拖拽已具备；贴边待补齐 |
+| DEV003 | 桌宠窗口壳层 | P0 | review | Codex | frontend-shell | DEV001 | 2026-04-25 | 透明无边框置顶窗口、跳任务栏、机器人透明 PNG 壳层与拖拽已具备；贴边吸附另列增强 |
 | DEV004 | 聊天面板 UI 骨架 | P0 | review | Claude Code | frontend-chat | DEV001 | 2026-04-21 | 聊天面板、输入框、消息列表待 GUI 复验 |
 | DEV005 | 应用分层与依赖注入骨架 | P0 | done | Claude Code | architecture | DEV001 | 2026-04-20 | domain/application/interfaces/infrastructure |
 | DEV006 | LLM 网关接口与 Provider 骨架 | P0 | done | Claude Code | llm | DEV005 | 2026-04-20 | 统一模型网关和 Provider 抽象 |
@@ -72,7 +72,7 @@
 | TEST006 | 设置与系统能力测试 | P1 | review | Codex | quality-tauri | DEV016,DEV022,DEV023 | 2026-04-24 | 设置落库、快捷键、自启动、通知 |
 | TEST007 | 数据持久化与迁移测试 | P0 | review | Codex | quality-persistence | DEV027 | 2026-04-25 | 新增全迁移表快照重开与坏快照回退测试；database 持久化测试 4 passed，全量测试 46 passed |
 | TEST008 | 用量统计与展示测试 | P1 | review | Codex | quality-usage | DEV020,DEV021 | 2026-04-24 | 新增 UsageTrackingLLMGateway 单测，覆盖 chat 和 intent usage save 字段；聚合和 GUI 面板仍待终验 |
-| TEST009 | GUI 全链路终验与证据归档 | P0 | review | Codex | quality-release | DEV025 | 2026-04-25 | 实机 Tauri GUI 启动成功：`app.exe` 标题 `Agent 桌宠` 且 Responding=True，Vite HTTP 200，截图与证据见 `artifacts/TEST009-20260425-095841`；逐项人工点击仍待执行 |
+| TEST009 | GUI 全链路终验与证据归档 | P0 | review | Codex | quality-release | DEV025 | 2026-04-25 | 实机 Tauri GUI 启动成功：`app.exe` 标题 `Agent 桌宠` 且 Responding=True，Vite HTTP 200；透明机器人窗口复测见 `artifacts/DEV003-20260425-103926`，全链路证据见 `artifacts/TEST009-20260425-095841`；逐项人工点击仍待执行 |
 | TEST010 | 跨平台系统能力验收 | P1 | todo | Tauri Agent | quality-tauri | DEV022,DEV023 | 2026-04-24 | 快捷键/自启动/通知权限跨平台 |
 | TEST011 | 文档路径与 smoke 回归 | P1 | review | Docs Agent | quality-docs | DEV028 | 2026-04-24 | smoke 改为读取新任务与验收文档 |
 | TEST012 | 技术优化决策复核 | P1 | todo | Architecture Agent | quality-architecture | DEV029 | 2026-04-24 | 复核选型 challenge 是否转成任务或接受风险 |
