@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import usePetStore from './petState';
 import { useChatStore } from '../chat-panel/chatStore';
+import { useSettingsStore } from '../settings/settingsStore';
 import {
   type DisplayMood,
   petLottieByMood,
@@ -22,10 +23,18 @@ const MOOD_LABEL_MAP: Record<DisplayMood, string> = {
   reminding: '轻提醒',
 };
 
-function handlePetClick(): void {
+const INTERACTION_ITEMS = [
+  { label: '和我聊天', presetText: null },
+  { label: '创建提醒', presetText: '帮我创建一个提醒' },
+  { label: '创建待办', presetText: '帮我创建一个待办事项' },
+  { label: '总结剪贴板', presetText: '帮我总结剪贴板内容' },
+  { label: '打开设置', presetText: null },
+] as const;
+
+function openChatPanel(): void {
   const chatStore = useChatStore.getState();
   if (!chatStore.isOpen) {
-    chatStore.togglePanel();
+    chatStore.openPanel();
   }
 }
 
@@ -61,9 +70,12 @@ export default function PetShell() {
   const isTyping = useChatStore((state) => state.isTyping);
   const isChatOpen = useChatStore((state) => state.isOpen);
   const messages = useChatStore((state) => state.messages);
+  const sendMessage = useChatStore((state) => state.sendMessage);
+  const toggleSettingsPanel = useSettingsStore((state) => state.togglePanel);
   const [now, setNow] = useState(() => Date.now());
   const [happyUntil, setHappyUntil] = useState(0);
   const [reminderUntil, setReminderUntil] = useState(0);
+  const [isInteractionMenuOpen, setInteractionMenuOpen] = useState(false);
   const lastAssistantRef = useRef(0);
   const lastInteractionRef = useRef(0);
   const lastReminderAtRef = useRef(0);
@@ -116,20 +128,61 @@ export default function PetShell() {
     [happyUntil, isTyping, mood, now, reminderUntil],
   );
 
+  function handlePetClick(): void {
+    setInteractionMenuOpen((isOpen) => !isOpen);
+  }
+
+  function handleInteraction(label: string, presetText: string | null): void {
+    setInteractionMenuOpen(false);
+
+    if (label === '打开设置') {
+      openChatPanel();
+      toggleSettingsPanel();
+      return;
+    }
+
+    openChatPanel();
+    if (presetText) {
+      sendMessage(presetText);
+    }
+  }
+
   return (
-    <div className={styles.petShell} data-tauri-drag-region onClick={handlePetClick}>
+    <div className={styles.petShell} data-tauri-drag-region>
       <div className={styles.animationFrame} data-mood={displayMood}>
         <img
           className={`${styles.robotImage} ${styles[`robot${displayMood}`]}`}
           src={tvRobotImage}
           alt="电视机机器人桌宠"
           draggable={false}
+          onClick={handlePetClick}
         />
         <LottieLightPlayer
           animationData={petLottieByMood[displayMood]}
           className={styles.lottieLayer}
         />
       </div>
+      {isInteractionMenuOpen ? (
+        <div
+          className={styles.interactionMenu}
+          onClick={(event) => event.stopPropagation()}
+          onMouseDown={(event) => event.stopPropagation()}
+          role="menu"
+          aria-label="桌宠交互列表"
+        >
+          {INTERACTION_ITEMS.map((item) => (
+            <button
+              key={item.label}
+              className={styles.interactionButton}
+              onClick={() => handleInteraction(item.label, item.presetText)}
+              type="button"
+              role="menuitem"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <span className={styles.moodIndicator}>{MOOD_LABEL_MAP[displayMood]}</span>
     </div>
   );

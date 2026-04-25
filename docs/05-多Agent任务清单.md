@@ -32,7 +32,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | DEV001 | 工程初始化与目录骨架 | P0 | done | Claude Code | foundation | - | 2026-04-20 | Tauri + React + TypeScript 骨架 |
 | DEV002 | 工程规范与基础配置 | P0 | done | Claude Code | foundation | DEV001 | 2026-04-20 | lint/format/tsconfig/目录约束 |
-| DEV003 | 桌宠窗口壳层 | P0 | review | Codex | frontend-shell | DEV001 | 2026-04-25 | 透明无边框置顶窗口、跳任务栏、机器人透明 PNG 壳层与拖拽已具备；贴边吸附另列增强 |
+| DEV003 | 桌宠窗口壳层 | P0 | review | Codex | frontend-shell | DEV001 | 2026-04-25 | 透明无边框置顶窗口、跳任务栏、机器人透明 PNG 壳层、拖拽与点击交互列表已具备；贴边吸附另列增强 |
 | DEV004 | 聊天面板 UI 骨架 | P0 | review | Claude Code | frontend-chat | DEV001 | 2026-04-21 | 聊天面板、输入框、消息列表待 GUI 复验 |
 | DEV005 | 应用分层与依赖注入骨架 | P0 | done | Claude Code | architecture | DEV001 | 2026-04-20 | domain/application/interfaces/infrastructure |
 | DEV006 | LLM 网关接口与 Provider 骨架 | P0 | done | Claude Code | llm | DEV005 | 2026-04-20 | 统一模型网关和 Provider 抽象 |
