@@ -45,6 +45,14 @@ npm run smoke:check
 npm run tauri:check:gnu
 ```
 
+打包 Windows exe：
+
+```bash
+make package-exe
+```
+
+默认使用 `x86_64-pc-windows-gnu` target，打包完成后会自动创建 `artifacts/release/` 并收集可分发的 `app.exe`、安装器 `.exe` 和 `.msi`。可用 `make exe-path` 查看最新生成的产物路径。
+
 ## 项目结构
 
 ```text

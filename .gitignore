@@ -16,6 +16,10 @@ logs/
 
 # Local GUI test evidence that may contain screen content
 artifacts/**/*.png
+artifacts/TEST-PET-MENU-*/
+
+# Package outputs
+artifacts/release/
 
 # Node
 node_modules/

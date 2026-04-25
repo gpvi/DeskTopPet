@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   quality-gate:
@@ -33,3 +34,63 @@ jobs:
 
       - name: Smoke checks
         run: npm run smoke:check
+
+  package-release:
+    name: Package and release Windows exe
+    needs: quality-gate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TAURI_TARGET: x86_64-pc-windows-gnu
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-gnu
+
+      - name: Setup GNU Make
+        shell: pwsh
+        run: choco install make -y --no-progress
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Package Windows exe
+        run: make package-exe
+
+      - name: Collect release artifacts
+        shell: pwsh
+        run: |
+          Get-ChildItem artifacts/release -File | Select-Object FullName,Length,LastWriteTime
+
+      - name: Upload packaged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktoppet-windows-${{ github.run_number }}
+          path: artifacts/release/*
+          if-no-files-found: error
+
+      - name: Publish GitHub release
+        shell: pwsh
+        run: |
+          $tag = "main-${{ github.run_number }}-${{ github.run_attempt }}"
+          $title = "Main build ${{ github.run_number }}.${{ github.run_attempt }}"
+          $notes = @"
+          Automated Windows package for main branch.
+
+          Commit: ${{ github.sha }}
+          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          "@
+          gh release create $tag artifacts/release/* --target "${{ github.sha }}" --title $title --notes $notes --latest
