@@ -63,6 +63,7 @@ function runTauriDev(port) {
       `[T039] No explicit target detected; defaulting to ${defaultWindowsTarget} for tauri dev.`,
     );
   }
+  const cargoEnv = resolveCargoEnv(resolvedTauriArgs);
   const overrideConfig = {
     build: {
       devUrl: `http://localhost:${port}`,
@@ -84,6 +85,7 @@ function runTauriDev(port) {
       shell: true,
       env: {
         ...process.env,
+        ...cargoEnv,
         TAURI_DEV_PORT: String(port),
         TAURI_DEV_HMR_PORT: String(hmrPort),
       },
@@ -98,6 +100,35 @@ function runTauriDev(port) {
     fs.rmSync(configDirectory, { recursive: true, force: true });
     process.exit(code ?? 1);
   });
+}
+
+function resolveCargoEnv(tauriArgs) {
+  if (process.env.CARGO_INCREMENTAL !== undefined) {
+    return {};
+  }
+
+  const target = resolveExplicitTarget(tauriArgs);
+  if (target !== "x86_64-pc-windows-gnu") {
+    return {};
+  }
+
+  console.warn(
+    "[T039] Disabling Cargo incremental compilation for x86_64-pc-windows-gnu tauri dev to avoid rustc ICE.",
+  );
+  return { CARGO_INCREMENTAL: "0" };
+}
+
+function resolveExplicitTarget(args) {
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if ((arg === "--target" || arg === "-t") && typeof args[index + 1] === "string") {
+      return args[index + 1];
+    }
+    if (arg.startsWith("--target=")) {
+      return arg.slice("--target=".length);
+    }
+  }
+  return process.env.CARGO_BUILD_TARGET ?? null;
 }
 
 function resolveWindowsTarget() {

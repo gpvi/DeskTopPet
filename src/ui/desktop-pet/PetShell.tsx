@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type MouseEvent as ReactMouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import usePetStore from './petState';
 import { useChatStore } from '../chat-panel/chatStore';
 import { useSettingsStore } from '../settings/settingsStore';
@@ -44,10 +44,7 @@ async function startWindowDragging(): Promise<void> {
     return;
   }
   try {
-    const { getCurrentWebviewWindow } = await import(
-      /* @vite-ignore */
-      '@tauri-apps/api/webviewWindow'
-    );
+    const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow');
     const webview = getCurrentWebviewWindow();
     await webview.startDragging();
   } catch {
@@ -163,7 +160,7 @@ export default function PetShell() {
     [happyUntil, isTyping, mood, now, reminderUntil],
   );
 
-  function handleMouseDown(event: React.MouseEvent<HTMLDivElement>): void {
+  function handleMouseDown(event: ReactMouseEvent<HTMLDivElement>): void {
     if (event.button !== 0) {
       return;
     }
@@ -185,6 +182,7 @@ export default function PetShell() {
       if (distance >= DRAG_THRESHOLD_PX) {
         dragStateRef.current.isDragging = true;
         dragStateRef.current.hasMoved = true;
+        setInteractionMenuOpen(false);
         void startWindowDragging();
       }
     };
@@ -220,11 +218,7 @@ export default function PetShell() {
   }
 
   return (
-    <div
-      className={styles.petShell}
-      data-tauri-drag-region
-      onMouseDown={handleMouseDown}
-    >
+    <div className={styles.petShell} onMouseDown={handleMouseDown}>
       <div className={styles.animationFrame} data-mood={displayMood}>
         <img
           className={`${styles.robotImage} ${styles[`robot${displayMood}`]}`}
