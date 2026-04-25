@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type MouseEvent as ReactMouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import usePetStore from './petState';
 import { useChatStore } from '../chat-panel/chatStore';
 import { useSettingsStore } from '../settings/settingsStore';
@@ -15,6 +15,7 @@ const REMINDER_IDLE_THRESHOLD_MS = 60000;
 const REMINDER_STATE_DURATION_MS = 3200;
 const REMINDER_COOLDOWN_MS = 45000;
 const REMINDER_TICK_MS = 1000;
+const DRAG_THRESHOLD_PX = 5;
 
 const MOOD_LABEL_MAP: Record<DisplayMood, string> = {
   idle: '',
@@ -30,6 +31,26 @@ const INTERACTION_ITEMS = [
   { label: '总结剪贴板', presetText: '帮我总结剪贴板内容' },
   { label: '打开设置', presetText: null },
 ] as const;
+
+function isTauriEnvironment(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    '__TAURI_INTERNALS__' in window
+  );
+}
+
+async function startWindowDragging(): Promise<void> {
+  if (!isTauriEnvironment()) {
+    return;
+  }
+  try {
+    const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+    const webview = getCurrentWebviewWindow();
+    await webview.startDragging();
+  } catch {
+    // Drag start failed, silently ignore
+  }
+}
 
 function openChatPanel(): void {
   const chatStore = useChatStore.getState();
@@ -79,6 +100,17 @@ export default function PetShell() {
   const lastAssistantRef = useRef(0);
   const lastInteractionRef = useRef(0);
   const lastReminderAtRef = useRef(0);
+  const dragStateRef = useRef<{
+    isDragging: boolean;
+    startX: number;
+    startY: number;
+    hasMoved: boolean;
+  }>({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    hasMoved: false,
+  });
 
   useEffect(() => {
     if (lastInteractionRef.current === 0) {
@@ -128,8 +160,46 @@ export default function PetShell() {
     [happyUntil, isTyping, mood, now, reminderUntil],
   );
 
-  function handlePetClick(): void {
-    setInteractionMenuOpen((isOpen) => !isOpen);
+  function handleMouseDown(event: ReactMouseEvent<HTMLDivElement>): void {
+    if (event.button !== 0) {
+      return;
+    }
+    dragStateRef.current = {
+      isDragging: false,
+      startX: event.clientX,
+      startY: event.clientY,
+      hasMoved: false,
+    };
+
+    const handleMouseMove = (moveEvent: MouseEvent): void => {
+      if (dragStateRef.current.isDragging) {
+        return;
+      }
+      const dx = moveEvent.clientX - dragStateRef.current.startX;
+      const dy = moveEvent.clientY - dragStateRef.current.startY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance >= DRAG_THRESHOLD_PX) {
+        dragStateRef.current.isDragging = true;
+        dragStateRef.current.hasMoved = true;
+        setInteractionMenuOpen(false);
+        void startWindowDragging();
+      }
+    };
+
+    const handleMouseUp = (): void => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+
+      if (!dragStateRef.current.hasMoved) {
+        setInteractionMenuOpen((isOpen) => !isOpen);
+      }
+
+      dragStateRef.current.isDragging = false;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
   }
 
   function handleInteraction(label: string, presetText: string | null): void {
@@ -148,14 +218,13 @@ export default function PetShell() {
   }
 
   return (
-    <div className={styles.petShell} data-tauri-drag-region>
+    <div className={styles.petShell} onMouseDown={handleMouseDown}>
       <div className={styles.animationFrame} data-mood={displayMood}>
         <img
           className={`${styles.robotImage} ${styles[`robot${displayMood}`]}`}
           src={tvRobotImage}
           alt="电视机机器人桌宠"
           draggable={false}
-          onClick={handlePetClick}
         />
         <LottieLightPlayer
           animationData={petLottieByMood[displayMood]}
