@@ -14,6 +14,9 @@ Desktop.ini
 *.log
 logs/
 
+# Local GUI test evidence that may contain screen content
+artifacts/**/*.png
+
 # Node
 node_modules/
 dist/

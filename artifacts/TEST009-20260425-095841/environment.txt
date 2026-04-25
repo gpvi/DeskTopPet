@@ -1,0 +1,9 @@
+验收日期：2026-04-25
+执行人：Codex
+环境：Windows / PowerShell / Tauri GNU
+branch=main
+commit=2e2d5eb
+node=v22.16.0
+npm=11.6.3
+rustc=rustc 1.93.1 (01f6ddf75 2026-02-11)
+cargo=cargo 1.93.1 (083ac5135 2025-12-15)

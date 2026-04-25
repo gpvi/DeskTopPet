@@ -54,7 +54,7 @@
 | DEV022 | 全局快捷键与唤起能力 | P1 | done | Codex | tauri-runtime | DEV003,DEV011 | 2026-04-24 | Tauri 全局快捷键 + Web 回退 |
 | DEV023 | 开机启动与权限管理 | P1 | done | Codex | tauri-runtime | DEV003,DEV011,DEV016 | 2026-04-24 | 自启动与通知权限 |
 | DEV024 | 异常处理与统一错误反馈 | P1 | review | Codex | conversation | DEV008,DEV010,DEV011 | 2026-04-21 | 用户错误映射策略 |
-| DEV025 | 集成联调与 MVP 验收 | P0 | in_progress | Codex | release | DEV008,DEV012,DEV013,DEV014,DEV015,DEV019 | 2026-04-24 | GUI 人工联调与验收记录待补 |
+| DEV025 | 集成联调与 MVP 验收 | P0 | in_progress | Codex | release | DEV008,DEV012,DEV013,DEV014,DEV015,DEV019 | 2026-04-25 | 实机启动证据已归档到 `artifacts/TEST009-20260425-095841`；聊天/提醒/待办/剪贴板/工具人工点击仍待补 |
 | DEV026 | 面板挂载与状态统一 | P0 | in_progress | Codex | frontend-shell | DEV003,DEV004,DEV008 | 2026-04-24 | 面板挂载已完成；状态源统一待收口 |
 | DEV027 | SQLite 持久化落地 | P0 | review | Codex | persistence | DEV007 | 2026-04-21 | 基于 dbPath 的快照持久化 |
 | DEV028 | 文档体系重整 | P1 | review | Codex | docs | DEV005 | 2026-04-24 | 统一需求、架构、类图、任务、验收文档 |
@@ -72,7 +72,7 @@
 | TEST006 | 设置与系统能力测试 | P1 | review | Codex | quality-tauri | DEV016,DEV022,DEV023 | 2026-04-24 | 设置落库、快捷键、自启动、通知 |
 | TEST007 | 数据持久化与迁移测试 | P0 | review | Codex | quality-persistence | DEV027 | 2026-04-25 | 新增全迁移表快照重开与坏快照回退测试；database 持久化测试 4 passed，全量测试 46 passed |
 | TEST008 | 用量统计与展示测试 | P1 | review | Codex | quality-usage | DEV020,DEV021 | 2026-04-24 | 新增 UsageTrackingLLMGateway 单测，覆盖 chat 和 intent usage save 字段；聚合和 GUI 面板仍待终验 |
-| TEST009 | GUI 全链路终验与证据归档 | P0 | review | Codex | quality-release | DEV025 | 2026-04-24 | 已补充 GUI 终验流程、入口映射和 `scripts/gui-acceptance-check.mjs` 半自动自检；真实 Tauri GUI 点击证据仍待执行 |
+| TEST009 | GUI 全链路终验与证据归档 | P0 | review | Codex | quality-release | DEV025 | 2026-04-25 | 实机 Tauri GUI 启动成功：`app.exe` 标题 `Agent 桌宠` 且 Responding=True，Vite HTTP 200，截图与证据见 `artifacts/TEST009-20260425-095841`；逐项人工点击仍待执行 |
 | TEST010 | 跨平台系统能力验收 | P1 | todo | Tauri Agent | quality-tauri | DEV022,DEV023 | 2026-04-24 | 快捷键/自启动/通知权限跨平台 |
 | TEST011 | 文档路径与 smoke 回归 | P1 | review | Docs Agent | quality-docs | DEV028 | 2026-04-24 | smoke 改为读取新任务与验收文档 |
 | TEST012 | 技术优化决策复核 | P1 | todo | Architecture Agent | quality-architecture | DEV029 | 2026-04-24 | 复核选型 challenge 是否转成任务或接受风险 |
@@ -91,7 +91,7 @@
 | BUG008 | Tauri GNU 运行链路收口 | P0 | done | Codex | tauri-runtime | DEV025 | 2026-04-24 | `tauri:dev` 自动探测 Windows 已安装 Rust target，`tauri:check:gnu` 通过 |
 | BUG009 | 开发端口占用与并发启动治理 | P1 | in_progress | Codex | tauri-runtime | DEV025 | 2026-04-24 | 端口探测与冲突回退启动 |
 | BUG010 | Smoke 脚本文档路径断链 | P1 | done | Codex | quality-docs | DEV025 | 2026-04-21 | 旧任务文档拆分后 smoke 恢复 |
-| BUG011 | tauri-dev 启动链路留证收口 | P0 | in_progress | Codex | tauri-runtime | BUG009 | 2026-04-24 | JSON 解析报错已消除；待补完整启动留证 |
+| BUG011 | tauri-dev 启动链路留证收口 | P0 | done | Codex | tauri-runtime | BUG009 | 2026-04-25 | `npm run tauri:dev:gnu` 实机启动成功并归档 stdout/stderr、app 进程、HTTP、截图证据；测试结束后无近期 Tauri 残留进程 |
 | BUG012 | TypeScript 6 构建配置修复 | P0 | done | Codex | quality | DEV002 | 2026-04-24 | 已修复 TypeScript 6 deprecation 配置、sql.js wasm 路径类型和 shortcut 动态 import 类型；`npm run build`、`npm run test:run` 通过 |
 | BUG013 | Tauri 残留进程与热键重复注册治理 | P0 | review | Codex | tauri-runtime | BUG008,BUG009 | 2026-04-24 | 当前 `tauri:check:gnu` 已不再因文件占用失败；shortcut 注册改为安全读取 `isRegistered` 并在已注册时先注销，待 GUI/dev 长跑复验 |
 | BUG014 | 技术栈版本与包管理策略收口 | P1 | done | Codex | foundation | DEV029 | 2026-04-24 | 已收口为 npm + package-lock；`packageManager` 改为 `npm@11.6.3`，AGENTS/CLAUDE/技术选型文档已同步 |

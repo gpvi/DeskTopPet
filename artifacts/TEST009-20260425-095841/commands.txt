@@ -1,0 +1,8 @@
+npm.cmd run smoke:check => pass=27 warn=0 fail=0
+node scripts/gui-acceptance-check.mjs => pass=59 fail=0
+npm.cmd run tauri:check:gnu => pass
+npm.cmd run tauri:dev:gnu => Vite http://localhost:10000, app.exe running
+Invoke-WebRequest http://localhost:10000 => status=200
+app.exe MainWindowTitle=Agent 桌宠 Responding=True
+desktop-screenshot.png captured
+test processes stopped => no recent Tauri test processes remain

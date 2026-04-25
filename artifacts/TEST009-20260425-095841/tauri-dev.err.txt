@@ -1,0 +1,6 @@
+     Running BeforeDevCommand (`npm run dev -- --port 10000 --strictPort`)
+     Running DevCommand (`cargo  run --no-default-features --target x86_64-pc-windows-gnu --color always --`)
+        Info Watching E:\Projects\DeskTopPet\src-tauri for changes...
+[1m[92m   Compiling[0m app v0.1.0 (E:\Projects\DeskTopPet\src-tauri)
+[1m[96m    Building[0m [=======================> ] 505/508: app(bui…[1m[96m    Building[0m [=======================> ] 506/508: app     [1m[96m    Building[0m [=======================> ] 507/508: app(bin)                                                            [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 14.93s
+[1m[92m     Running[0m `target\x86_64-pc-windows-gnu\debug\app.exe`

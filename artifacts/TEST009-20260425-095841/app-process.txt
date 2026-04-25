@@ -1,0 +1,8 @@
+
+ProcessName     : app
+Id              : 21400
+MainWindowTitle : Agent 桌宠
+Responding      : True
+Path            : E:\Projects\DeskTopPet\src-tauri\target\x86_64-pc-windows-gnu\debug\app.exe
+StartTime       : 2026/4/25 9:59:05
+
